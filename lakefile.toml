@@ -1,0 +1,10 @@
+name = "dylean-libraries"
+version = "0.1.0"
+defaultTargets = ["dylean-libraries"]
+
+[[lean_lib]]
+name = "DyleanLibraries"
+
+[[lean_exe]]
+name = "dylean-libraries"
+root = "Main"
