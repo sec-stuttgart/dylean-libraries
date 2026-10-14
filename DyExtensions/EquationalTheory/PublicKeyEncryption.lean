@@ -8,9 +8,9 @@ public import DY.Trace.Manipulation
 namespace DY.PublicKeyEncryption
 
 public class CanEncrypt (Bytes : Type u) where
-  pk : Bytes → Bytes
-  encrypt : Bytes → Bytes → Bytes → Bytes
-  decrypt : Bytes → Bytes → Err Bytes
+  pk : (sk: Bytes) → Bytes
+  encrypt : (publicKey: Bytes) → (nonce: Bytes) → (message: Bytes) → Bytes
+  decrypt : (sk: Bytes) → (ciphertext: Bytes) → Err Bytes
 
 export CanEncrypt (pk encrypt decrypt)
 
@@ -68,7 +68,9 @@ public instance : ALaCarte.RepresentableDecidableEq SubF where
 public instance : ALaCarte.RepresentableOrd SubF where
 public instance : SubBytesFunctor SubF where
 
-public def SubF.length [BytesFunctor] : Bytes.PartialLength SubF := fun _ _ => 64
+public def SubF.length [BytesFunctor] : Bytes.PartialLength SubF :=
+  fun { publicKey, nonce, message} rec =>
+    16 + rec message
 
 end Ciphertext
 
