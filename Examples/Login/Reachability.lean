@@ -1,8 +1,8 @@
 module
 
-public import Examples.Login.Proof
-import all Examples.Login.Specification
-import all Examples.Login.Invariants
+public import Login.Proof
+import all Login.Specification
+import all Login.Invariants
 import DY.Meta.Step
 
 namespace DY.Example.Login

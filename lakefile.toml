@@ -1,10 +1,25 @@
-name = "dylean-libraries"
+name = "«dylean-libraries»"
 version = "0.1.0"
-defaultTargets = ["dylean-libraries"]
+defaultTargets = ["DyleanLibraries"]
+
+[[require]]
+name = "dylean"
+git = "https://github.com/BobDyLean/dylean.git"
+rev = "main"
 
 [[lean_lib]]
 name = "DyleanLibraries"
+roots = []
+globs = ["DyleanLibraries", "DyLibraries.Communication", "DyLibraries.Communication.*", "DyLibraries.Database", "DyLibraries.Database.*", "DyLibraries.Printing", "DyLibraries.Printing.*", "DyExtensions.Actions.PersistentLocalUpdateableState", "DyExtensions.EquationalTheory.AEAD", "DyExtensions.EquationalTheory.PublicKeyEncryption", "DyExtensions.Trace.Arithmetic", "DyExtensions.Trace.Modifies", "DyExtensions.Trace.Search", "DyExtensions.Actions.ProtocolEvent", "DyExtensions.Actions.Random", "DyExtensions.Comparse", "DyLibraries.SplitCrypto.SplitAEAD", "DyLibraries.SplitCrypto.SplitPKE", "DyLibraries.SplitCrypto.SplitSignature"]
+allowImportAll = true
+
+[[lean_lib]]
+name = "Login"
+srcDir = "Examples"
+globs = ["Login", "Login.*"]
+allowImportAll = true
 
 [[lean_exe]]
-name = "dylean-libraries"
-root = "Main"
+name = "loginTrace"
+srcDir = "Examples"
+root = "Login.PrintTrace"

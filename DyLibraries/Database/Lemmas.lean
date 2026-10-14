@@ -1,9 +1,9 @@
 module
 
-public import DY.Database.Invariants
-public import DY.Database.TraceLemmas
-import all DY.Database.Basic
-import all DY.Database.Invariants
+public import DyLibraries.Database.Invariants
+public import DyLibraries.Database.TraceLemmas
+import all DyLibraries.Database.Basic
+import all DyLibraries.Database.Invariants
 
 namespace DY.Database
 open PersistentLocalUpdateableState

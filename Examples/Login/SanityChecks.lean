@@ -1,10 +1,10 @@
 module
 
-import Examples.Login.Reachability
-import Examples.Login.Printing
-public meta import Examples.Login.Printing
-import all Examples.Login.Specification
-import all Examples.Login.Reachability
+import Login.Reachability
+import Login.Printing
+public meta import Login.Printing
+import all Login.Specification
+import all Login.Reachability
 import all DY.Trace.Monad
 
 namespace DY.Example.Login

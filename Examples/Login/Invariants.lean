@@ -1,7 +1,7 @@
 module
 
-public import Examples.Login.Specification
-import all Examples.Login.Specification
+public import Login.Specification
+import all Login.Specification
 import DY.Meta.Step
 
 namespace DY.Example.Login

@@ -1,9 +1,9 @@
 module
 
-public import DY.Database.Operations
-import all DY.Database.Operations
-import all DY.Actions.PersistentLocalUpdateableState
-import all DY.Actions.ProtocolEvent
+public import DyLibraries.Database.Operations
+import all DyLibraries.Database.Operations
+import all DyExtensions.Actions.PersistentLocalUpdateableState
+import all DyExtensions.Actions.ProtocolEvent
 import all DY.Trace.Manipulation
 import all DY.Trace.Monad
 import all DY.Trace.Basic

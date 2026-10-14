@@ -1,8 +1,8 @@
 module
 
-public import Examples.Login.Specification
-public import DY.Communication.Printing
-import all Examples.Login.Specification
+public import Login.Specification
+public import DyLibraries.Communication.Printing
+import all Login.Specification
 
 namespace DY.Example.Login
 open Printing Communication

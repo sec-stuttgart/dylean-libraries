@@ -1,9 +1,9 @@
 module
 
-public import DY.Communication.Core.Lemmas
-import all DY.Communication.Core
-import all DY.Communication.Core.Invariants
-import all DY.Comparse
+public import DyLibraries.Communication.Core.Lemmas
+import all DyLibraries.Communication.Core
+import all DyLibraries.Communication.Core.Invariants
+import all DyExtensions.Comparse
 
 namespace DY.Communication
 

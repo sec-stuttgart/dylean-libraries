@@ -1,16 +1,16 @@
 module
 
-public import DY.Database.All
-import all DY.Database.Operations
-import all DY.Database.Noninterference
-import all DY.Database.Basic
-import all DY.Database.Invariants
-import all DY.Actions.PersistentLocalUpdateableState
-import all DY.Actions.ProtocolEvent
+public import DyLibraries.Database.All
+import all DyLibraries.Database.Operations
+import all DyLibraries.Database.Noninterference
+import all DyLibraries.Database.Basic
+import all DyLibraries.Database.Invariants
+import all DyExtensions.Actions.PersistentLocalUpdateableState
+import all DyExtensions.Actions.ProtocolEvent
 import all DY.Trace.Monad
 import all DY.Trace.Manipulation
 import all DY.Trace.Basic
-import all DY.Trace.Search
+import all DyExtensions.Trace.Search
 import DY.Meta.Step
 
 namespace DY.Database.Tests

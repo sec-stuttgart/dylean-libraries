@@ -1,10 +1,10 @@
 module
 
-public import DY.Database.Specifications
-public import DY.Database.Search
-import all DY.Database.Basic
-import all DY.Database.Invariants
-import all DY.Database.Operations
+public import DyLibraries.Database.Specifications
+public import DyLibraries.Database.Search
+import all DyLibraries.Database.Basic
+import all DyLibraries.Database.Invariants
+import all DyLibraries.Database.Operations
 
 namespace DY.Database
 open PersistentLocalUpdateableState

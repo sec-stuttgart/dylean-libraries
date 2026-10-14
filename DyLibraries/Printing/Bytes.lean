@@ -1,12 +1,12 @@
 module
 
-public import DY.Printing.Basic
-public import DY.Actions.Random
+public import DyLibraries.Printing.Basic
+public import DyExtensions.Actions.Random
 public import DY.EquationalTheory.Literal
 public import DY.EquationalTheory.Concat
-public import DY.EquationalTheory.PublicKeyEncryption
+public import DyExtensions.EquationalTheory.PublicKeyEncryption
 public import DY.EquationalTheory.Sign
-public import DY.EquationalTheory.AEAD
+public import DyExtensions.EquationalTheory.AEAD
 public import DY.EquationalTheory.Hash
 public import DY.EquationalTheory.DiffieHellman
 public import DY.EquationalTheory.KdfExtract

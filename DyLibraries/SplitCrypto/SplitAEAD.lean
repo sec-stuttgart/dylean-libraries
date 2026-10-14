@@ -1,6 +1,6 @@
 module
 
-public import DY.EquationalTheory.AEAD
+public import DyExtensions.EquationalTheory.AEAD
 
 /-! Usage-based composition of AEAD predicates and their proofs.
 The primitive API and byte invariants remain in `AEAD.lean`.

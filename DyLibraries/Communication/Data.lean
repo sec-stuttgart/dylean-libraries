@@ -1,6 +1,6 @@
 module
 
-public import DY.Comparse
+public import DyExtensions.Comparse
 public import DY.Actions.PersistentLocalState
 
 namespace DY.Communication

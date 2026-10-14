@@ -56,7 +56,7 @@ No protocol actions, traces, or proof annotations are changed by printing.
 
 ## Configure a protocol
 
-Import `DY.Printing`, or `DY.Communication.Printing` for communication payloads.
+Import `DyLibraries.Printing`, or `DyLibraries.Communication.Printing` for communication payloads.
 After defining the protocol's `BytesFunctor`, combine its constructor printers
 with **the same source list and order**:
 

@@ -1,16 +1,16 @@
 module
 
-public import DY.EquationalTheory.SplitPKE
-public import DY.EquationalTheory.SplitSignature
+public import DyLibraries.SplitCrypto.SplitPKE
+public import DyLibraries.SplitCrypto.SplitSignature
 import all DY.Bytes.Invariants
 
-public import DY.Communication.Core.Invariants
+public import DyLibraries.Communication.Core.Invariants
 public import DY.Trace.ReachabilityTheorem
-import all DY.Communication.Core
-import all DY.Communication.Core.Invariants
+import all DyLibraries.Communication.Core
+import all DyLibraries.Communication.Core.Invariants
 import all DY.Trace.Manipulation
 import all DY.Trace.Monad
-import all DY.Comparse
+import all DyExtensions.Comparse
 import DY.Meta.Step
 
 namespace DY.Communication

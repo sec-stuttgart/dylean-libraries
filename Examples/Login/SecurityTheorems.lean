@@ -1,7 +1,7 @@
 module
 
-public import Examples.Login.Reachability
-import all Examples.Login.Invariants
+public import Login.Reachability
+import all Login.Invariants
 
 namespace DY.Example.Login
 

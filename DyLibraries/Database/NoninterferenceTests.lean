@@ -1,6 +1,6 @@
 module
 
-public import DY.Database.Noninterference
+public import DyLibraries.Database.Noninterference
 import all DY.Trace.Basic
 
 namespace DY.Database.NoninterferenceTests

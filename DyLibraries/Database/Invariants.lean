@@ -1,8 +1,8 @@
 module
 
-public import DY.Database.Basic
-public import DY.Comparse
-import all DY.Database.Labels
+public import DyLibraries.Database.Basic
+public import DyExtensions.Comparse
+import all DyLibraries.Database.Labels
 
 namespace DY.Database
 public section

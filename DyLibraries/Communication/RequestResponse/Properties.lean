@@ -1,10 +1,10 @@
 module
 
-public import DY.Communication.RequestResponse.Lemmas
-import all DY.Communication.RequestResponse.Invariants
-import all DY.Communication.RequestResponse
-import all DY.Communication.Data
-import all DY.Comparse
+public import DyLibraries.Communication.RequestResponse.Lemmas
+import all DyLibraries.Communication.RequestResponse.Invariants
+import all DyLibraries.Communication.RequestResponse
+import all DyLibraries.Communication.Data
+import all DyExtensions.Comparse
 import all DY.Actions.PersistentLocalState
 import all DY.Actions.PersistentGlobalState
 import all DY.Trace.Manipulation

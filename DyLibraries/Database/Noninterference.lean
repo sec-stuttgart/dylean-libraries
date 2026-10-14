@@ -1,9 +1,9 @@
 module
 
-public import DY.Actions.PersistentLocalUpdateableState
-public import DY.Actions.ProtocolEvent
-import all DY.Actions.PersistentLocalUpdateableState
-import all DY.Actions.ProtocolEvent
+public import DyExtensions.Actions.PersistentLocalUpdateableState
+public import DyExtensions.Actions.ProtocolEvent
+import all DyExtensions.Actions.PersistentLocalUpdateableState
+import all DyExtensions.Actions.ProtocolEvent
 import all DY.Trace.Basic
 import all DY.Trace.Manipulation
 

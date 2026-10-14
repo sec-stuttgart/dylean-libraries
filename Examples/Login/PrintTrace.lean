@@ -1,7 +1,7 @@
 module
 
-import Examples.Login.Printing
-import all Examples.Login.SanityChecks
+import Login.Printing
+import all Login.SanityChecks
 
 /-- Emit only DY* JSON lines on stdout; report an unexpected failed run on stderr. -/
 public def main : IO UInt32 := do

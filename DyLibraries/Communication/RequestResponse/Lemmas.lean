@@ -1,21 +1,21 @@
 module
 
-public import DY.EquationalTheory.SplitAEAD
+public import DyLibraries.SplitCrypto.SplitAEAD
 
-public import DY.Communication.RequestResponse.Invariants
-public import DY.Communication.Core.Lemmas
+public import DyLibraries.Communication.RequestResponse.Invariants
+public import DyLibraries.Communication.Core.Lemmas
 public import DY.Trace.ReachabilityTheorem
-import all DY.Communication.RequestResponse
-import all DY.Communication.Data
-import all DY.Communication.RequestResponse.Invariants
-import all DY.Communication.Core
-import all DY.Communication.Core.Invariants
-import all DY.Actions.ProtocolEvent
-import all DY.Actions.PersistentLocalUpdateableState
+import all DyLibraries.Communication.RequestResponse
+import all DyLibraries.Communication.Data
+import all DyLibraries.Communication.RequestResponse.Invariants
+import all DyLibraries.Communication.Core
+import all DyLibraries.Communication.Core.Invariants
+import all DyExtensions.Actions.ProtocolEvent
+import all DyExtensions.Actions.PersistentLocalUpdateableState
 import DY.Meta.Step
 import all DY.Trace.Manipulation
 import all DY.Trace.Monad
-import all DY.Comparse
+import all DyExtensions.Comparse
 
 namespace DY.Communication
 

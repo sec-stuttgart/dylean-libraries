@@ -1,8 +1,8 @@
 module
 
-public import DY.Printing
-public meta import DY.Printing
-import all DY.Printing.Basic
+public import DyLibraries.Printing
+public meta import DyLibraries.Printing
+import all DyLibraries.Printing.Basic
 import all DY.ALaCarte.Basic
 
 namespace DY.Printing.Test

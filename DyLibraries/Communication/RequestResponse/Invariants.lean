@@ -1,7 +1,7 @@
 module
 
-public import DY.Communication.RequestResponse
-public import DY.Communication.Core.Invariants
+public import DyLibraries.Communication.RequestResponse
+public import DyLibraries.Communication.Core.Invariants
 
 namespace DY.Communication
 

@@ -1,10 +1,10 @@
 module
 
-public import DY.Database.Invariants
-import all DY.Database.Labels
-import all DY.Database.Noninterference
-import all DY.Actions.PersistentLocalUpdateableState
-import all DY.Actions.ProtocolEvent
+public import DyLibraries.Database.Invariants
+import all DyLibraries.Database.Labels
+import all DyLibraries.Database.Noninterference
+import all DyExtensions.Actions.PersistentLocalUpdateableState
+import all DyExtensions.Actions.ProtocolEvent
 import all DY.Actions.Network
 import all DY.Trace.Basic
 import all DY.Trace.Manipulation

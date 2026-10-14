@@ -1,8 +1,8 @@
 module
 
-public import DY.Communication.Core
-public import DY.EquationalTheory.AEAD
-public import DY.Actions.PersistentLocalUpdateableState
+public import DyLibraries.Communication.Core
+public import DyExtensions.EquationalTheory.AEAD
+public import DyExtensions.Actions.PersistentLocalUpdateableState
 
 namespace DY.Communication
 

@@ -1,7 +1,7 @@
 module
 
-public import DY.Database.Noninterference
-public import DY.Database.Labels
+public import DyLibraries.Database.Noninterference
+public import DyLibraries.Database.Labels
 
 namespace DY.Database
 public section

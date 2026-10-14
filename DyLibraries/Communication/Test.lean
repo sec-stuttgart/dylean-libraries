@@ -4,23 +4,23 @@ public import DY.Trace
 public import DY.Bytes
 public import DY.EquationalTheory.Literal
 public import DY.EquationalTheory.Concat
-public import DY.EquationalTheory.PublicKeyEncryption
+public import DyExtensions.EquationalTheory.PublicKeyEncryption
 public import DY.EquationalTheory.Sign
-public import DY.EquationalTheory.AEAD
+public import DyExtensions.EquationalTheory.AEAD
 public import DY.Actions.Network
-public import DY.Actions.Random
-public import DY.Actions.ProtocolEvent
+public import DyExtensions.Actions.Random
+public import DyExtensions.Actions.ProtocolEvent
 public import DY.Actions.PersistentLocalState
 public import DY.Actions.LongTermKeys
-public import DY.Communication.All
-import all DY.Communication.RequestResponse.Invariants
-import all DY.Communication.Core
-import all DY.Communication.RequestResponse
-public meta import DY.Trace.Search
-public meta import DY.Communication.Data
+public import DyLibraries.Communication.All
+import all DyLibraries.Communication.RequestResponse.Invariants
+import all DyLibraries.Communication.Core
+import all DyLibraries.Communication.RequestResponse
+public meta import DyExtensions.Trace.Search
+public meta import DyLibraries.Communication.Data
 public meta import DY.EquationalTheory.Sign
-public meta import DY.EquationalTheory.PublicKeyEncryption
-public meta import DY.EquationalTheory.AEAD
+public meta import DyExtensions.EquationalTheory.PublicKeyEncryption
+public meta import DyExtensions.EquationalTheory.AEAD
 import DY.Meta
 
 import DY.Meta.Step

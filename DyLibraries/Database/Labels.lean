@@ -1,6 +1,6 @@
 module
 
-public import DY.Actions.PersistentLocalUpdateableState
+public import DyExtensions.Actions.PersistentLocalUpdateableState
 
 namespace DY.Database
 public section

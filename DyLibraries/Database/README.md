@@ -1,6 +1,12 @@
 # Database state
 
-Import `DY.Database.All` and open `DY.Database`. This ports the operations and
+# Disclaimer
+
+**All of this code was ported directly from DY\* with LLMs. The code in this directory will be revised and potentially change substantially.**
+
+# Description
+
+Import `DyLibraries.Database.All` and open `DY.Database`. This ports the operations and
 state guarantees of `DY.Lib.State.Database` using
 `PersistentLocalUpdateableState.CompromisableState` for both tables and rows.
 
@@ -119,7 +125,7 @@ noninterference lemmas to prove that an intervening action preserves them.
 
 ## Independent row compromise
 
-`DY.Database.Labels` uses the shared updateable-state library's typed compromise
+`DyLibraries.Database.Labels` uses the shared updateable-state library's typed compromise
 events. There is no database-specific compromise event or serialized-content
 compromise helper.
 
@@ -180,7 +186,7 @@ needed: the port proves the stronger complete-list persistence used by the datab
 ## Validation
 
 ```sh
-lake build DY.Database.Tests DY.Database.BasicTests DY.Database.NoninterferenceTests
+lake build DyLibraries.Database.Tests DyLibraries.Database.BasicTests DyLibraries.Database.NoninterferenceTests
 lake build
 ```
 

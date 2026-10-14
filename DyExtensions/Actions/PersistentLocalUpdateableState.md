@@ -1,5 +1,11 @@
 # Persistent local state with constrained updates
 
+# Disclaimer
+
+**All of this code was ported directly from DY\* with LLMs. The code in this directory will be revised and potentially change substantially.**
+
+# Description
+
 Import `DY.Actions.PersistentLocalUpdateableState`. The implementation is separate
 from `PersistentLocalState`: a handle here is a stable state ID, not the timestamp
 of a particular write. Addresses are scoped by state type and participant.

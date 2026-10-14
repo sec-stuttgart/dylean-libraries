@@ -1,6 +1,6 @@
 module
 
-public import DY.EquationalTheory.PublicKeyEncryption
+public import DyExtensions.EquationalTheory.PublicKeyEncryption
 
 /-! Usage-based composition of PublicKeyEncryption predicates and their proofs.
 The primitive API and byte invariants remain in `PublicKeyEncryption.lean`.

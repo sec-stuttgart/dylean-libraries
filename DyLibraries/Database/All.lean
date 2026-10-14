@@ -1,4 +1,4 @@
 module
 
-public import DY.Database.Properties
-public import DY.Database.Compromise
+public import DyLibraries.Database.Properties
+public import DyLibraries.Database.Compromise

@@ -1,7 +1,7 @@
 module
 
-import all DY.Database.Basic
-import all DY.Database.Invariants
+import all DyLibraries.Database.Basic
+import all DyLibraries.Database.Invariants
 
 namespace DY.Database.BasicTests
 

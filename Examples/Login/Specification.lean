@@ -1,11 +1,11 @@
 module
 
-public import DY.Communication.All
-public import DY.Communication.RequestResponse.Properties
-public meta import DY.Communication.Data
+public import DyLibraries.Communication.All
+public import DyLibraries.Communication.RequestResponse.Properties
+public meta import DyLibraries.Communication.Data
 public meta import DY.EquationalTheory.Sign
-public meta import DY.EquationalTheory.PublicKeyEncryption
-public meta import DY.EquationalTheory.AEAD
+public meta import DyExtensions.EquationalTheory.PublicKeyEncryption
+public meta import DyExtensions.EquationalTheory.AEAD
 import DY.Meta
 
 namespace DY.Example.Login

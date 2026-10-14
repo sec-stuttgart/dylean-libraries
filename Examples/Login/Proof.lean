@@ -1,10 +1,10 @@
 module
 
-public import Examples.Login.Invariants
-import all Examples.Login.Specification
-import all Examples.Login.Invariants
-import all DY.Communication.RequestResponse.Invariants
-import all DY.Communication.RequestResponse
+public import Login.Invariants
+import all Login.Specification
+import all Login.Invariants
+import all DyLibraries.Communication.RequestResponse.Invariants
+import all DyLibraries.Communication.RequestResponse
 import DY.Meta.Step
 
 namespace DY.Example.Login

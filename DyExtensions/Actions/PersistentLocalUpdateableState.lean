@@ -1,7 +1,7 @@
 module
 
 public import DY.Actions.PersistentLocalState
-public import DY.Trace.Modifies
+public import DyExtensions.Trace.Modifies
 import all DY.Trace.Basic
 import all DY.Trace.Invariant
 import all DY.Trace.Manipulation

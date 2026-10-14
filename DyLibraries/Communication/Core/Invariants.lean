@@ -1,6 +1,6 @@
 module
 
-public import DY.Communication.Core
+public import DyLibraries.Communication.Core
 
 namespace DY.Communication
 

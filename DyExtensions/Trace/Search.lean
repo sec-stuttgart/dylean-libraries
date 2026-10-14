@@ -1,6 +1,6 @@
 module
 
-public import DY.Trace.Arithmetic
+public import DyExtensions.Trace.Arithmetic
 import all DY.Trace.Basic
 
 namespace DY.Trace

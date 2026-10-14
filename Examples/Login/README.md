@@ -1,6 +1,8 @@
 # Login over confidential request/response
 
-Import `Examples.Login.All` to load the example and its executable checks.
+Import `Login` to load the example and its executable checks.
+Lake uses `Examples` as this library's source directory, so
+`Examples/Login/Proof.lean` is the module `Login.Proof`.
 
 `provision client server` generates a symbolic password and stores matching
 `Credentials` at both endpoints. It returns their persistent state handles.
@@ -65,5 +67,5 @@ Authentication is non-injective: replay is permitted. A replayed request may
 produce another fresh cookie; a replayed response returns the original cookie.
 The protocol does not implement replay caches, expiration, or logout.
 
-Run `lake build Examples.Login.All` for the example, or `lake build` for the
+Run `lake build Login` for the example, or `lake build` for the
 whole project. All implementation files are contained in this directory.

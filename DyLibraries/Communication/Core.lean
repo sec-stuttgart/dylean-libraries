@@ -1,11 +1,11 @@
 module
 
-public import DY.Communication.Data
-public import DY.EquationalTheory.PublicKeyEncryption
+public import DyLibraries.Communication.Data
+public import DyExtensions.EquationalTheory.PublicKeyEncryption
 public import DY.EquationalTheory.Sign
 public import DY.Actions.Network
-public import DY.Actions.Random
-public import DY.Actions.ProtocolEvent
+public import DyExtensions.Actions.Random
+public import DyExtensions.Actions.ProtocolEvent
 public import DY.Actions.LongTermKeys
 
 namespace DY.Communication

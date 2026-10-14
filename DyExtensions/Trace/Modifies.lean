@@ -1,6 +1,6 @@
 module
 
-public import DY.Trace.Search
+public import DyExtensions.Trace.Search
 public import DY.Trace.Monad
 import all DY.Trace.Basic
 

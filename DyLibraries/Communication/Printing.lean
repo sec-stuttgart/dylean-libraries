@@ -1,7 +1,7 @@
 module
 
-public import DY.Printing.Trace
-public import DY.Communication.All
+public import DyLibraries.Printing.Trace
+public import DyLibraries.Communication.All
 
 namespace DY.Communication
 open Printing

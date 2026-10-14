@@ -1,13 +1,13 @@
 module
 
-public import DY.Database.Execution
-import all DY.Database.Execution
-public import DY.Database.Lemmas
-import all DY.Database.Operations
-import all DY.Database.Invariants
-import all DY.Database.Basic
-import all DY.Actions.PersistentLocalUpdateableState
-import all DY.Actions.ProtocolEvent
+public import DyLibraries.Database.Execution
+import all DyLibraries.Database.Execution
+public import DyLibraries.Database.Lemmas
+import all DyLibraries.Database.Operations
+import all DyLibraries.Database.Invariants
+import all DyLibraries.Database.Basic
+import all DyExtensions.Actions.PersistentLocalUpdateableState
+import all DyExtensions.Actions.ProtocolEvent
 import all DY.Trace.Manipulation
 import all DY.Trace.Monad
 import all DY.Trace.Basic
