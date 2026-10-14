@@ -301,7 +301,7 @@ theorem modifies_setLocalState
 := by
   have hp := (TraceEntryHas.inj_proj_eq (α := ExecTrace.Entry) (TraceEntryHas.inj (State.ExecEntryT.mk p sid s)) (State.ExecEntryT.mk p sid s)).mpr rfl
   simp [Traceful.modifies, setLocalState, appendEntry, Traceful.run_mk, Trace.append,
-    Trace.subtract_snoc _ _ _ (Trace.le_refl tr), Trace.modifies, addressOf, hp, eq_comm]
+    Trace.subtract_snoc _ _ _ (Trace.le_refl tr), Trace.modifies, Trace.nil, addressOf, hp, eq_comm]
 
 /-- Reading state modifies no address. -/
 theorem modifies_getLocalState
@@ -309,7 +309,7 @@ theorem modifies_getLocalState
   (p : Participant) (sid : Nat) (tr : ExecTrace) (address : Participant × Nat) :
   ¬ Traceful.modifies (addressOf StateT) (getLocalState (StateT := StateT) p sid) tr address
 := by
-  simp [Traceful.modifies, getLocalState_same_trace, Trace.modifies]
+  simp [Traceful.modifies, getLocalState_same_trace, Trace.modifies, Trace.nil]
 
 
 /-- Historical writes within a prefix can be recovered from the full trace. -/
@@ -409,14 +409,28 @@ def computeNewSessionId
   (StateT : Type) [ExecTraceTypes] [ExecTraceTypes.Has (State.ExecEntryT StateT)]
   (p : Participant) (tr : ExecTrace) : Nat
 :=
-  match tr with
-  | .nil => 0
-  | .snoc before entry =>
+  tr.toArray.foldl (fun current entry =>
     match addressOf StateT entry with
-    | some (owner, sid) =>
-      if owner = p then max (computeNewSessionId StateT p before) (sid + 1)
-      else computeNewSessionId StateT p before
-    | none => computeNewSessionId StateT p before
+    | some (owner, sid) => if owner = p then max current (sid + 1) else current
+    | none => current) 0
+
+@[simp]
+theorem computeNewSessionId_nil
+  (StateT : Type) [ExecTraceTypes] [ExecTraceTypes.Has (State.ExecEntryT StateT)] (p : Participant) :
+  computeNewSessionId StateT p .nil = 0
+:= by
+  simp [computeNewSessionId, Trace.nil]
+
+/-- Appending a write raises the fresh ID only for its owner. -/
+theorem computeNewSessionId_push
+  (StateT : Type) [ExecTraceTypes] [ExecTraceTypes.Has (State.ExecEntryT StateT)]
+  (p : Participant) (tr : ExecTrace) (entry : ExecTrace.Entry) :
+  computeNewSessionId StateT p ⟨tr.toArray.push entry⟩ =
+    match addressOf StateT entry with
+    | some (owner, sid) => if owner = p then max (computeNewSessionId StateT p tr) (sid + 1) else computeNewSessionId StateT p tr
+    | none => computeNewSessionId StateT p tr
+:= by
+  simp [computeNewSessionId]
 
 /-- Fresh ID computation exceeds all previously written IDs for the participant. -/
 theorem computeNewSessionId_bound
@@ -430,19 +444,22 @@ theorem computeNewSessionId_bound
     have hp := (TraceEntryHas.inj_proj_eq (tr.at time hi) (State.ExecEntryT.mk p sid s)).mpr he
     simp [addressOf, hp]
   clear he hw
-  induction tr with
-  | nil => simp [Trace.length] at hi
+  induction tr using Trace.inductionOn with
+  | nil => simp [Trace.length, Trace.nil] at hi
   | snoc tr e ih =>
     by_cases ht : time = tr.length
     · subst time
-      simp only [Trace.at, dite_true] at haddr
-      simp [computeNewSessionId, haddr]; omega
-    · have hit : time < tr.length := by simp only [Trace.length] at hi; omega
-      have haddr' : addressOf StateT (tr.at time hit) = some (p, sid) := by simpa [Trace.at, ht] using haddr
+      simp only [Trace.at_rawPush, dite_true] at haddr
+      simp only [computeNewSessionId_push, haddr, ↓reduceIte]
+      exact Nat.lt_of_lt_of_le (Nat.lt_succ_self sid) (Nat.le_max_right _ _)
+    · have hit : time < tr.length := by simp only [Trace.rawPush_length] at hi; omega
+      have haddr' : addressOf StateT (tr.at time hit) = some (p, sid) := by simpa [Trace.at_rawPush, ht] using haddr
       have hb := ih hit haddr'
-      unfold computeNewSessionId
+      rw [computeNewSessionId_push]
       split
-      · split <;> omega
+      · split
+        · exact Nat.lt_of_lt_of_le hb (Nat.le_max_left _ _)
+        · exact hb
       · exact hb
 
 /-- A freshly computed ID has no current or historical value. -/
@@ -517,7 +534,7 @@ theorem modifies_newSessionId
   (p : Participant) (tr : ExecTrace) (address : Participant × Nat) :
   ¬ Traceful.modifies (addressOf StateT) (newSessionId StateT p) tr address
 := by
-  simp [Traceful.modifies, newSessionId, Traceful.run_mk, Trace.modifies]
+  simp [Traceful.modifies, newSessionId, Traceful.run_mk, Trace.modifies, Trace.nil]
 
 namespace Compromise
 

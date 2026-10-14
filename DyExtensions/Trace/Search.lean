@@ -12,12 +12,19 @@ def searchFirstWith
   (tr : Trace α) (project : α → Option β) :
   Option (Nat × β)
 :=
-  match tr with
-  | .nil => none
-  | .snoc before entry =>
-    match searchFirstWith before project with
-    | some result => some result
-    | none => (project entry).map (before.length, ·)
+  (tr.toArray.mapIdx (fun i e => (project e).map (i, ·))).foldl Option.or none
+
+@[simp]
+theorem searchFirstWith_nil (project : α → Option β) : searchFirstWith .nil project = none := by
+  simp [searchFirstWith, nil]
+
+/-- An appended entry supplies the first match only when earlier entries do not match. -/
+@[simp]
+theorem searchFirstWith_push
+  (tr : Trace α) (e : α) (project : α → Option β) :
+  searchFirstWith ⟨tr.toArray.push e⟩ project = (searchFirstWith tr project).or ((project e).map (tr.length, ·))
+:= by
+  simp [searchFirstWith, Array.mapIdx_push, length]
 
 /-- Find the timestamp of the first entry satisfying a Boolean predicate. -/
 @[expose]
@@ -32,26 +39,26 @@ theorem searchFirstWith_none
   (tr : Trace α) (project : α → Option β) :
   searchFirstWith tr project = none ↔ ∀ i h, project (tr.at i h) = none
 := by
-  induction tr with
-  | nil => simp [searchFirstWith, length]
+  induction tr using inductionOn with
+  | nil => simp [searchFirstWith, length, nil]
   | snoc tr e ih =>
     constructor
     · intro h i hi
       have hb : searchFirstWith tr project = none := by
-        cases hb : searchFirstWith tr project <;> simp_all [searchFirstWith]
+        cases hb : searchFirstWith tr project <;> simp_all [searchFirstWith_push]
       have he : project e = none := by
-        simpa [searchFirstWith, hb] using h
-      simp only [Trace.at]
+        simpa [searchFirstWith_nil, searchFirstWith_push, hb] using h
+      simp only [at_rawPush]
       split
       · exact he
       · exact ih.mp hb _ _
     · intro h
       have hb : searchFirstWith tr project = none := ih.mpr (by
         intro i hi
-        have := h i (by simp only [length]; omega)
-        simpa [Trace.at, show i ≠ tr.length by omega] using this)
-      have he := h tr.length (by simp [length])
-      simpa [searchFirstWith, hb, Trace.at] using he
+        have := h i (by simp only [rawPush_length]; omega)
+        simpa [at_rawPush, show i ≠ tr.length by omega] using this)
+      have he := h tr.length (by simp [rawPush_length])
+      simpa [searchFirstWith_nil, searchFirstWith_push, hb, at_rawPush] using he
 
 /-- First search identifies an actual match and precedes every other match. -/
 theorem searchFirstWith_some
@@ -60,37 +67,37 @@ theorem searchFirstWith_some
     ∃ hi : i < tr.length, project (tr.at i hi) = some v ∧
       ∀ j hj, project (tr.at j hj) ≠ none → i ≤ j
 := by
-  induction tr with
-  | nil => simp [searchFirstWith]
+  induction tr using inductionOn with
+  | nil => simp [searchFirstWith_nil]
   | snoc tr e ih =>
     cases hb : searchFirstWith tr project with
     | some result =>
       intro h
-      have hh : result = (i, v) := by simpa [searchFirstWith, hb] using h
+      have hh : result = (i, v) := by simpa [searchFirstWith_nil, searchFirstWith_push, hb] using h
       subst result
       obtain ⟨hi, hv, hm⟩ := ih hb
-      refine ⟨by simp only [length]; omega, ?_, ?_⟩
-      · simpa [Trace.at, show i ≠ tr.length by omega] using hv
+      refine ⟨by simp only [rawPush_length]; omega, ?_, ?_⟩
+      · simpa [at_rawPush, show i ≠ tr.length by omega] using hv
       · intro j hj hjm
         by_cases he : j = tr.length
         · omega
-        · apply hm j (by simp only [length] at hj; omega)
-          simpa [Trace.at, he] using hjm
+        · apply hm j (by simp only [rawPush_length] at hj; omega)
+          simpa [at_rawPush, he] using hjm
     | none =>
       intro h
       cases he : project e with
-      | none => simp [searchFirstWith, hb, he] at h
+      | none => simp [searchFirstWith_push, hb, he] at h
       | some value =>
-        simp only [searchFirstWith, hb, he, Option.map_some, Option.some.injEq, Prod.mk.injEq] at h
+        simp only [searchFirstWith_push, hb, he, Option.map_some, Option.none_or, Option.some.injEq, Prod.mk.injEq] at h
         rcases h with ⟨rfl, rfl⟩
-        refine ⟨by simp [length], by simpa [Trace.at] using he, ?_⟩
+        refine ⟨by simp [rawPush_length], by simpa [at_rawPush] using he, ?_⟩
         intro j hj hjm
         by_cases hn : tr.length ≤ j
         · exact hn
         apply False.elim
         have hjlt : j < tr.length := by omega
         have hh := (searchFirstWith_none tr project).mp hb j hjlt
-        exact hjm (by simpa [Trace.at, show j ≠ tr.length by omega] using hh)
+        exact hjm (by simpa [at_rawPush, show j ≠ tr.length by omega] using hh)
 
 /-- Once found, the first match is unchanged by any extension of the trace. -/
 theorem searchFirstWith_later
@@ -98,9 +105,13 @@ theorem searchFirstWith_later
   a ≤ b → searchFirstWith a project = some result → searchFirstWith b project = some result
 := by
   intro h hab
-  induction h with
-  | equal => exact hab
-  | extend b e _ ih => simp [searchFirstWith, ih]
+  have he := subtract_concat a b h
+  rw [← he]
+  induction subtract b a using inductionOn with
+  | nil => simpa using hab
+  | snoc suffix e ih =>
+    rw [concat_rawPush, searchFirstWith_push, ih]
+    rfl
 
 /-- Find the newest entry accepted by a partial projection, retaining its timestamp. -/
 @[expose]
@@ -108,12 +119,19 @@ def searchLastWith
   (tr : Trace α) (project : α → Option β) :
   Option (Nat × β)
 :=
-  match tr with
-  | .nil => none
-  | .snoc before entry =>
-    match project entry with
-    | some value => some (before.length, value)
-    | none => searchLastWith before project
+  (tr.toArray.mapIdx (fun i e => (project e).map (i, ·))).foldl (fun acc value => value.or acc) none
+
+@[simp]
+theorem searchLastWith_nil (project : α → Option β) : searchLastWith .nil project = none := by
+  simp [searchLastWith, nil]
+
+/-- A matching appended entry replaces the previous last match. -/
+@[simp]
+theorem searchLastWith_push
+  (tr : Trace α) (e : α) (project : α → Option β) :
+  searchLastWith ⟨tr.toArray.push e⟩ project = ((project e).map (tr.length, ·)).or (searchLastWith tr project)
+:= by
+  simp [searchLastWith, Array.mapIdx_push, length]
 
 /-- Find the timestamp of the last entry satisfying a Boolean predicate. -/
 @[expose]
@@ -136,27 +154,27 @@ theorem searchLastWith_none
   (tr : Trace α) (project : α → Option β) :
   searchLastWith tr project = none ↔ ∀ i h, project (tr.at i h) = none
 := by
-  induction tr with
-  | nil => simp [searchLastWith, length]
+  induction tr using inductionOn with
+  | nil => simp [searchLastWith, length, nil]
   | snoc tr e ih =>
-    simp only [searchLastWith]
+    simp only [searchLastWith_push]
     cases he : project e with
     | none =>
-      simp only [ih]
+      simp only [Option.map_none, Option.none_or, ih]
       constructor
       · intro h i hi
-        simp only [Trace.at]
+        simp only [at_rawPush]
         split
         · exact he
         · apply h
       · intro h i hi
-        have := h i (by simp only [length]; omega)
-        simpa [Trace.at, show i ≠ tr.length by omega] using this
+        have := h i (by simp only [rawPush_length]; omega)
+        simpa [at_rawPush, show i ≠ tr.length by omega] using this
     | some v =>
-      simp only [Option.some_ne_none, false_iff]
+      simp only [Option.map_some, Option.some_or, Option.some_ne_none, false_iff]
       intro h
-      have := h tr.length (by simp [length])
-      simp [Trace.at, he] at this
+      have := h tr.length (by simp [rawPush_length])
+      simp [at_rawPush, he] at this
 
 /-- A successful search identifies an actual match and bounds every other match. -/
 theorem searchLastWith_some
@@ -165,38 +183,39 @@ theorem searchLastWith_some
     ∃ hi : i < tr.length, project (tr.at i hi) = some v ∧
       ∀ j hj, project (tr.at j hj) ≠ none → j ≤ i
 := by
-  induction tr with
-  | nil => simp [searchLastWith]
+  induction tr using inductionOn with
+  | nil => simp [searchLastWith_nil]
   | snoc tr e ih =>
-    simp only [searchLastWith]
+    simp only [searchLastWith_push]
     cases he : project e with
     | some value =>
       intro h
       cases h
-      refine ⟨by simp [length], ?_, ?_⟩
-      · simpa [Trace.at] using he
-      · intro j hj _; simp only [length] at hj; omega
+      refine ⟨by simp [rawPush_length], ?_, ?_⟩
+      · simpa [at_rawPush] using he
+      · intro j hj _; simp only [rawPush_length] at hj; omega
     | none =>
       intro h
       obtain ⟨hi, hv, hm⟩ := ih h
-      refine ⟨by simp only [length]; omega, ?_, ?_⟩
-      · simpa [Trace.at, show i ≠ tr.length by omega] using hv
+      refine ⟨by simp only [rawPush_length]; omega, ?_, ?_⟩
+      · simpa [at_rawPush, show i ≠ tr.length by omega] using hv
       · intro j hj hmatch
         by_cases hj' : j = tr.length
-        · simp [Trace.at, hj', he] at hmatch
-        · have hjlt : j < tr.length := by simp only [length] at hj; omega
+        · simp [at_rawPush, hj', he] at hmatch
+        · have hjlt : j < tr.length := by simp only [rawPush_length] at hj; omega
           apply hm j hjlt
-          simpa [Trace.at, hj'] using hmatch
+          simpa [at_rawPush, hj'] using hmatch
 
 /-- The last value on a concatenation comes from the suffix when it has a match. -/
 theorem lastValue_concat
   (a b : Trace α) (project : α → Option β) :
   lastValue (concat a b) project = (lastValue b project).or (lastValue a project)
 := by
-  induction b with
-  | nil => simp [concat, lastValue, searchLastWith]
+  induction b using inductionOn with
+  | nil => simp [lastValue]
   | snoc b e ih =>
-    cases he : project e <;> simp_all [concat, lastValue, searchLastWith]
+    rw [concat_rawPush]
+    cases he : project e <;> simp_all [lastValue, searchLastWith_push]
 
 /-- The last value on an extension changes only if its suffix contains a match. -/
 theorem lastValue_subtract

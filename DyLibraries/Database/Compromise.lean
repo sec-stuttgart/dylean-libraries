@@ -28,13 +28,13 @@ theorem eventLogged_append_iff
     by_cases htime : time = tr.length
     · right
       subst time
-      simpa [Trace.append, Trace.at] using he
+      simpa [Trace.append, Trace.at_rawPush] using he
     · left
-      have hi' : time < tr.length := by simp only [Trace.append, Trace.length] at hi; omega
-      exact ⟨time, (Trace.at?_eq_some _ _ _).mpr ⟨hi', by simpa [Trace.append, Trace.at, htime] using he⟩⟩
+      have hi' : time < tr.length := by simp only [Trace.append_length] at hi; omega
+      exact ⟨time, (Trace.at?_eq_some _ _ _).mpr ⟨hi', by simpa [Trace.append, Trace.at_rawPush, htime] using he⟩⟩
   · rintro (h | h)
     · exact Trace.EventLogged_le event tr _ (Trace.append_le _ _) h
-    · exact ⟨tr.length, (Trace.at?_eq_some _ _ _).mpr ⟨by simp [Trace.append, Trace.length], by simpa [Trace.append, Trace.at] using h⟩⟩
+    · exact ⟨tr.length, (Trace.at?_eq_some _ _ _).mpr ⟨by simp [Trace.append_length], by simpa [Trace.append, Trace.at_rawPush] using h⟩⟩
 
 section
 variable {RowT : Type} [BytesFunctor] [BytesLength]

@@ -58,12 +58,8 @@ abbrev EntryPrinter [BytesFunctor] (α : Type) := Printers → Nat → α → Pr
 
 def EntryPrinter.combine [BytesFunctor] {n : Nat} {Ts : Fin n → Type} (ps : (i : Fin n) → EntryPrinter (Ts i)) : EntryPrinter (ExecTraceTypes.combine Ts) := fun p id e => ps e.id p id e.entry
 
-/-- Walk the snoc spine once, accumulating entries in chronological order. -/
-def traceEntries {α : Type} (tr : Trace α) : List α := go tr []
-where
-  go : Trace α → List α → List α
-    | .nil, acc => acc
-    | .snoc before entry, acc => go before (entry :: acc)
+/-- Return the array entries in chronological order. -/
+def traceEntries {α : Type} (tr : Trace α) : List α := tr.toArray.toList
 
 def traceToJson [BytesFunctor] (printer : EntryPrinter α) (p : Printers) (tr : Trace α) : List Lean.Json := (traceEntries tr).zipIdx.map fun (e, i) => (printer p i e).toJson i
 

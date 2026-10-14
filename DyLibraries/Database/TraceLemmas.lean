@@ -13,12 +13,11 @@ theorem traceInvariant_before
   (before after : ProofTrace) :
   before ≤ after → after.Invariant → before.Invariant
 := by
-  intro h
-  induction h with
-  | equal => exact id
-  | extend after entry h ih =>
-    intro hinv
-    exact ih hinv.1
+  intro h hinv i hi
+  have he := Trace.at_le before after i hi h
+  have hp := Trace.le_imp_prefix_le_length_eq before after i h (by omega)
+  rw [he, hp]
+  exact hinv i _
 
 end
 end DY.Database

@@ -10,37 +10,27 @@ public section
 /-- Addresses written by a trace, parameterized by the entry representation. -/
 @[expose]
 def modifies (addressOf : α → Option δ) (tr : Trace α) (address : δ) : Prop :=
-  match tr with
-  | .nil => False
-  | .snoc before entry => addressOf entry = some address ∨ modifies addressOf before address
+  ∃ e ∈ tr.toArray, addressOf e = some address
 
 /-- An address is modified exactly when a write to it occurs on the trace. -/
 theorem modifies_spec
   (addressOf : α → Option δ) (tr : Trace α) (address : δ) :
   modifies addressOf tr address ↔ ∃ i h, addressOf (tr.at i h) = some address
 := by
-  induction tr with
-  | nil => simp [modifies, length]
-  | snoc tr e ih =>
-    simp only [modifies, ih]
-    constructor
-    · intro h
-      rcases h with h | ⟨i, hi, h⟩
-      · exact ⟨tr.length, by simp [length], by simpa [Trace.at] using h⟩
-      · exact ⟨i, by simp only [length]; omega, by simpa [Trace.at, show i ≠ tr.length by omega] using h⟩
-    · rintro ⟨i, hi, h⟩
-      by_cases he : i = tr.length
-      · left; simpa [Trace.at, he] using h
-      · right
-        have hi' : i < tr.length := by simp only [length] at hi; omega
-        exact ⟨i, hi', by simpa [Trace.at, he] using h⟩
+  simp only [modifies, Array.mem_iff_getElem, Trace.at, length]
+  constructor
+  · rintro ⟨e, ⟨i, hi, rfl⟩, he⟩
+    exact ⟨i, hi, he⟩
+  · rintro ⟨i, hi, he⟩
+    exact ⟨_, ⟨i, hi, rfl⟩, he⟩
 
 /-- Concatenation takes the union of the modified addresses. -/
 theorem modifies_concat
   (addressOf : α → Option δ) (a b : Trace α) (address : δ) :
   modifies addressOf (concat a b) address ↔ modifies addressOf a address ∨ modifies addressOf b address
 := by
-  induction b <;> simp_all [concat, modifies] <;> grind
+  simp only [modifies, concat, Array.mem_append]
+  grind
 
 /-- A suffix that does not write an address cannot change a lookup for that address. -/
 theorem lastValue_of_not_modifies
@@ -80,7 +70,7 @@ theorem modifies_pure
   (value : α) (tr : ExecTrace) (address : δ) :
   ¬ modifies addressOf (pure value) tr address
 := by
-  simp [modifies, run_pure, Trace.modifies]
+  simp [modifies, run_pure, Trace.modifies, Trace.nil]
 
 /-- Bind unions writes from both stages; failure retains the first stage's writes. -/
 theorem modifies_bind
