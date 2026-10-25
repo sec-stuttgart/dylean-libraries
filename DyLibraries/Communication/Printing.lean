@@ -132,6 +132,60 @@ def messageDecoder [BytesLength] [BytesFunctor.Has Literal.SubF] [BytesLength.Ha
   let x : α ← Comparse.parse b
   return printer p.bytesToString x
 
+/-- Follow the communication envelopes as in DY*: display HTTP payloads directly,
+while preserving sender, receiver, encryption, and signature for core messages.
+This is diagnostic inspection of symbolic terms, not cryptographic verification. -/
+def communicationMessageToString
+  [BytesLength] [BytesFunctor.Has Literal.SubF] [BytesLength.Has Literal.SubF.length]
+  [BytesFunctor.Has Concat.SubF] [BytesLength.Has Concat.SubF.length]
+  [BytesFunctor.Has PublicKeyEncryption.Ciphertext.SubF] [BytesFunctor.Has AEAD.Ciphertext.SubF]
+  {α β : Type} [Comparse.ParseableSerializeable α] [Comparse.ParseableSerializeable β]
+  (corePayload : α → String) (httpPayload : β → String) (otherBytes : Bytes → String) (message : Bytes) :
+  Option String
+:=
+  let renderEncrypted := fun (pk : Bytes) (payload : String) => s!"pk_enc (pk = {otherBytes pk}, msg = ({payload}))"
+  let renderSigned := fun (sender receiver payload : String) => s!"msg = (<BREAK>\tsender = {sender},<BREAK>\treceiver = {receiver},<BREAK>\tpayload = ({payload}<BREAK>\t)<BREAK>),<BREAK>signature = sig(sk_\{{sender}}, msg)"
+  match message.view? PublicKeyEncryption.Ciphertext.SubF with
+  | some encrypted =>
+    match (Comparse.parse encrypted.message : Option (EncryptionInput (WireMessage β))) with
+    | some (.unsigned _ _ (.request request)) => some (httpPayload request.request)
+    | some (.unsigned _ _ (.signature _)) => some "Error: SigMessage cannot be inside a PkeEnc encryption"
+    | some (.unsigned _ _ (.response _)) => some "Error: ResponseMessage cannot be inside a PkeEnc encryption"
+    | some (.signed ..) => some "Error: Signed encryption_input cannot be inside a PkeEnc encryption outside a signature"
+    | none =>
+      match (Comparse.parse encrypted.message : Option (EncryptionInput α)) with
+      | some (.unsigned _ _ payload) => some (renderEncrypted encrypted.publicKey (corePayload payload))
+      | some (.signed ..) => some "Error: Signed encryption_input cannot be inside a PkeEnc encryption outside a signature"
+      | none => none
+  | none =>
+    match (Comparse.parse message : Option (WireMessage β)) with
+    | some (.signature signed) =>
+      match (Comparse.parse signed.message : Option (SignatureInput α)) with
+      | some (.plain sender receiver payload) => some (renderSigned sender receiver (corePayload payload))
+      | some (.encrypted payload _) =>
+        match payload.view? PublicKeyEncryption.Ciphertext.SubF with
+        | some encrypted =>
+          match (Comparse.parse encrypted.message : Option (EncryptionInput α)) with
+          | some (.signed sender receiver payload) => some (renderSigned sender receiver (renderEncrypted encrypted.publicKey (corePayload payload)))
+          | _ =>
+            -- Lean also supports authenticated HTTP requests through the core layer.
+            match (Comparse.parse encrypted.message : Option (EncryptionInput (WireMessage β))) with
+            | some (.signed _ _ (.request request)) => some (httpPayload request.request)
+            | _ => some ("Error: Signed encryption_input does not contain a Signed message -- " ++ otherBytes encrypted.message)
+        | none => some ("Error: Encrypted signature_input does not contain a PkeEnc encrypted message -- " ++ otherBytes payload)
+      | none =>
+        match (Comparse.parse signed.message : Option (SignatureInput (WireMessage β))) with
+        | some (.plain _ _ (.request request)) => some (httpPayload request.request)
+        | _ => some "Error: signed_communication_message does not contain a signature_input"
+    | some (.request _) => some "Error: RequestMessage cannot be sent in plaintext"
+    | some (.response response) =>
+      match response.ciphertext.view? AEAD.Ciphertext.SubF with
+      | some encrypted => do
+        let payload : β ← Comparse.parse encrypted.message
+        return httpPayload payload
+      | none => some "Error: response_envelope does not contain an AEAD ciphertext"
+    | none => none
+
 end
 end DY.Communication
 
@@ -149,7 +203,7 @@ def State.entryPrinter
 
 instance [BytesFunctor] {StateT : Type} [PayloadPrinter StateT] : PayloadPrinter (Compromise.CompromiseEvent StateT) where
   tag := "Compromise." ++ PayloadPrinter.tag (α := StateT)
-  render bytes e := s!"stateId={e.stateId}, state=({PayloadPrinter.render bytes e.state})"
+  render bytes e := s!"stateId={e.stateId}, {PayloadPrinter.render bytes e.state}"
   principal e := e.participant
 
 namespace Compromise
