@@ -899,7 +899,7 @@ public theorem receiveResponse.proof
   HoareTriple (receiveResponse (α := α) client stateId messageHandle)
     (fun _ => True)
     (fun response tr => ∃ metadata : CommunicationMetadata α,
-      -- TODO is this postcondition even needed?
+      -- TODO: Is this postcondition needed?
       (metadata.stateHandle = stateId ∧ PersistentLocalUpdateableState.StateWasSet tr.erase client stateId (.clientSendRequest ⟨metadata.client, metadata.server, metadata.request, metadata.key⟩ : CommunicationState _)) ∧
       tr.erase.EventLogged (.clientReceiveResponse client response metadata : RequestResponseEvent α))
 := by

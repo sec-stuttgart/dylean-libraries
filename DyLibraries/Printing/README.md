@@ -87,7 +87,7 @@ See [Examples/Login/Printing.lean](../../Examples/Login/Printing.lean) for a com
 optional typed network-message decoder. `Printers.messageToString` returns
 `Option String`: `some` overrides the symbolic rendering, while `none` falls
 back to it. State/event customization uses typed instances instead of DY*'s
-runtime tag registry; no serialization and reparsing is needed.
+runtime tag registry; neither serialization nor reparsing is needed.
 
 ## Customize communication messages
 

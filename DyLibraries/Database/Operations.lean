@@ -60,7 +60,7 @@ def dbFindAux
     if query row then return (ptr, row)
     else dbFindAux query p rest
 
-/-- Find the newest inserted matching row in the current database. -/
+/-- Find the most recently inserted matching row in the current database. -/
 def dbFind
   (p : Participant) (sid : Nat) (query : RowT → Bool) :
   Traceful (Nat × RowT)

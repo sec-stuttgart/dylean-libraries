@@ -82,7 +82,7 @@ theorem modifies_pure
 := by
   simp [modifies, run_pure, Trace.modifies]
 
-/-- Bind unions writes from both stages; failure retains the first stage's writes. -/
+/-- Bind combines writes from both stages; failure retains the first stage's writes. -/
 theorem modifies_bind
   [ExecTraceTypes] (addressOf : ExecTrace.Entry → Option δ)
   (f : Traceful α) (g : α → Traceful β) (tr : ExecTrace) (address : δ) :

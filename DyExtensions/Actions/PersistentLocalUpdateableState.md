@@ -2,7 +2,7 @@
 
 # Disclaimer
 
-**All of this code was ported directly from DY\* with LLMs. The code in this directory will be revised and potentially change substantially.**
+**All of this code was ported directly from DY\* with LLMs. The code in `PersistentLocalUpdateableState.lean` will be revised and may change substantially.**
 
 # Description
 

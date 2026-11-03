@@ -2,7 +2,7 @@
 
 # Disclaimer
 
-**All of this code was ported directly from DY\* with LLMs. The code in this directory will be revised and potentially change substantially.**
+**All of this code was ported directly from DY\* with LLMs. The code in this directory will be revised and may change substantially.**
 
 # Description
 
@@ -64,7 +64,7 @@ State and event components also expose their normal `baseAttackerKnowledge` and
 | `initializeDb RowT participant` | Log an empty-table event, write the empty table, return its stable ID. |
 | `addRow participant tableId row` | Check every key before writing; insert the row, log the new pointer list, update the table, return the row ID. |
 | `updateRow participant rowId row` | Write a new version at the same row ID. Validity, update constraints, and immutable keys are proof obligations. |
-| `dbFind participant tableId query` | Return `(rowId, row)` for the first matching current row, searching newest inserted rows first. |
+| `dbFind participant tableId query` | Return `(rowId, row)` for the first matching current row, searching the most recently inserted rows first. |
 
 These use `Traceful`'s built-in failure. Missing tables, duplicate keys during
 insertion, and searches without a match fail. An encountered missing row pointer

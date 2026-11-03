@@ -35,7 +35,7 @@ public def communicationLabel
     (∃ vk, LongTermKeys.LongTermKeyCompromised (signatureKeyName α) receiver vk tr)
 
 /-- Protocols layered over communication can require additional facts whenever
-they emit one of the three kinds of send event. -/
+they emit one of the three kinds of send events. -/
 public class HigherLayerEventPredicates
     [BytesFunctor] [ExecTraceTypes] [ProofTraceTypes] (α : Type) where
   confidential : ProofTrace → Participant → Participant → α → Prop

@@ -62,7 +62,7 @@ variable [ExecTraceTypes.Has (ProtocolEvent.ExecEntryT (CoreEvent α))]
 variable [ExecTraceTypes.Has (LongTermKeys.ExecEntryT (pkeKeyName α))]
 variable [ExecTraceTypes.Has (LongTermKeys.ExecEntryT (signatureKeyName α))]
 
--- TODO we should probably not expose these internal functions to the outside
+-- TODO: Consider keeping these internal functions private.
 @[expose] public def encryptMessage
     (receiverPublicKey nonce : Bytes)
     (sender receiver : Participant) (payload : α) : Bytes :=
