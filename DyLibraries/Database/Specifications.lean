@@ -3,6 +3,7 @@ module
 public import DyLibraries.Database.Execution
 import all DyLibraries.Database.Execution
 public import DyLibraries.Database.Lemmas
+public import DyLibraries.Database.Search
 import all DyLibraries.Database.Operations
 import all DyLibraries.Database.Invariants
 import all DyLibraries.Database.Basic
@@ -107,6 +108,27 @@ theorem isRowInDb_rowPred
   rintro hinv ⟨db, _, _, hr⟩
   obtain ⟨time, hw, _⟩ := isMostRecentStateFor_spec p ptr row tr.erase hr
   exact stateWasSet_implies_pred tr p ptr row hinv ⟨time, hw⟩
+
+omit [ProofTraceTypes.Has (State.ProofEntryT (Db RowT))] [ExecTraceTypes.Has (ProtocolEvent.ExecEntryT (DbEvent RowT))] [ProofTraceTypes.Has (ProtocolEvent.ProofEntryT (DbEvent RowT))] [TraceInvariant.Has (State.ProofEntryT (Db RowT))] [TraceInvariant.Has (ProtocolEvent.ProofEntryT (DbEvent RowT))] in
+/-- Every row fetched by a database query satisfies the application's row invariant. -/
+@[instance]
+theorem dbFindAll.rowPred
+  (p : Participant) (sid : Nat) (query : RowT → Bool) :
+  HoareTriple (dbFindAll p sid query)
+    (fun _ => True)
+    (fun rows tr => ∀ result ∈ rows, DbPredicate.rowPred p result.2 tr ∧ query result.2 = true)
+:= by
+  apply HoareTriple.mk
+  intro tr _ hinv
+  obtain ⟨htr, hs⟩ := dbFindAll_run p sid query tr.erase
+  simp only [wp]
+  refine ⟨tr, ?_, hinv, htr, Trace.le_refl tr⟩
+  cases h : ((dbFindAll p sid query).run tr.erase).1 with
+  | none => trivial
+  | some rows =>
+    intro result member
+    obtain ⟨stored, eligible⟩ := (hs rows h result.1 result.2).mp member
+    exact ⟨isRowInDb_rowPred result.2 result.1 p sid tr hinv stored, eligible⟩
 
 omit [ExecTraceTypes.Has (State.ExecEntryT (Db RowT))] [ProofTraceTypes.Has (State.ProofEntryT (Db RowT))] [TraceInvariant.Has (State.ProofEntryT (Db RowT))] in
 /-- A logged database event certifies current completeness and uniqueness on an invariant trace. -/

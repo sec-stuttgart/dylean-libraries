@@ -144,6 +144,21 @@ example : ((addRow "alice" 99 ((8, 1) : Row)).run inserted).1 = none := by rfl
 private def twoRows : ExecTrace := ((addRow "alice" 0 ((8, 1) : Row)).run inserted).2.val
 example : ((dbFind "alice" 0 (fun _ : Row => true)).run twoRows).1 = some (1, (8, 1)) := by rfl
 
+-- Bulk lookup returns every match in pointer order and succeeds even without matches.
+example : ((dbFindAll "alice" 0 (fun _ : Row => true)).run twoRows).1 = some [(1, (8, 1)), (0, (7, 1))] := by rfl
+example : ((dbFindAll "alice" 0 (fun row : Row => row.1 == 7)).run twoRows).1 = some [(0, (7, 1))] := by rfl
+example : ((dbFindAll "alice" 0 (fun row : Row => row.1 == 99)).run twoRows).1 = some [] := by rfl
+example : ((dbFindAll "alice" 0 (fun _ : Row => true)).run initialized).1 = some [] := by rfl
+example : ((dbFindAll "alice" 0 (fun _ : Row => true)).run updated).1 = some [(0, (7, 2))] := by rfl
+example : ((dbFindAll "bob" 0 (fun _ : Row => true)).run twoRows).1 = none := by rfl
+
+-- The application row predicate specification works with the configured state invariant.
+example (p : Participant) (sid : Nat) (query : Row → Bool) :
+  HoareTriple (dbFindAll p sid query)
+    (fun _ => True)
+    (fun rows tr => ∀ result ∈ rows, DbPredicate.rowPred p result.2 tr ∧ query result.2 = true)
+:= dbFindAll.rowPred p sid query
+
 -- Corrupt the first of two rows: its label changes, while the other row's label does not.
 example : (stateLabel Row "alice" 0).isCorrupt ((compromise Row "alice" 0).run twoRows).2.val := by
   apply (compromiseRow_stateLabel_iff compromiseNetwork twoRows "alice" "alice" 0 0 ((7, 1) : Row) rfl).mpr

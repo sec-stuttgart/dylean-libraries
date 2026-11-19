@@ -68,6 +68,16 @@ def dbFind
   let db : Db RowT ← getLocalState p sid
   dbFindAux query p db.rows
 
+/-- Fetch every matching current row in pointer order, skipping missing pointers.
+An existing table with no matches returns an empty list. -/
+def dbFindAll
+  (p : Participant) (sid : Nat) (query : RowT → Bool) :
+  Traceful (List (Nat × RowT))
+:= do
+  let db : Db RowT ← getLocalState p sid
+  Traceful.mk (fun tr =>
+    (some (db.rows.filterMap (fun ptr => (getRowOpt RowT tr p ptr).bind (fun row => if query row then some (ptr, row) else none))), ⟨tr, Trace.le_refl tr⟩))
+
 end
 
 /-- The current table contains the pointer and the pointer currently resolves to this row. -/
