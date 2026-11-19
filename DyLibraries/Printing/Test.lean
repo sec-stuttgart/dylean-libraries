@@ -12,6 +12,13 @@ namespace DY.Printing.Test
 def nonce : Bytes := ({timestamp := 7, size := 32} : Random.SubF Bytes).pack
 def literal : Bytes := Literal.literalToBytes "hello".toUTF8
 
+/-- Endpoint annotations remain valid JSON even for names containing special characters. -/
+def flow : SendFromTo := ⟨"Alice\"\n\\é", "Bob\t\\"⟩
+
+#guard (Lean.Json.parse (PayloadPrinter.render bytesToString flow)).toOption == some (Lean.Json.mkObj [("sender", Lean.toJson flow.sender), ("receiver", Lean.toJson flow.receiver)])
+#guard @PayloadPrinter.principal (inferInstance : BytesFunctor) SendFromTo inferInstance flow = flow.sender
+#guard @PayloadPrinter.tag (inferInstance : BytesFunctor) SendFromTo inferInstance = "DY.Lib.Printing.DebugEvent"
+
 #guard bytesToString nonce = "Nonce #7"
 #guard bytesToString literal = "\"hello\""
 #guard literalToString ⟨#[0, 10, 34, 92, 127, 255]⟩ = "\"\\x00\\x0a\\\"\\\\\\x7f\\xff\""

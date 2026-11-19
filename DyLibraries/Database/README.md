@@ -132,6 +132,13 @@ compromise helper.
 - `participantLabel RowT p`: some row version owned by `p` was compromised.
 - `stateLabel RowT p ptr`: some version at that row address was compromised.
 - `stateContentLabel RowT p ptr row`: that exact typed row version was compromised.
+- `valueCompromised field value tr`: some compromised row version contains
+  `value` in the selected field, across all owners and row addresses.
+- `valueLabel field value`: the corresponding label. Its corruption predicate
+  is `valueCompromised field value`; `valueCompromised.later` proves persistence.
+  `valueLabel_canFlow_stateContentLabel` relates it to any exact row version
+  containing the value. For example, cookie rows can share a byte value while
+  differing in their names, domains, or owners.
 
 The proved flow direction is participant → address → value. `DbKnowable RowT`
 requires row validity to imply knowability under `participantLabel RowT p`.

@@ -9,6 +9,7 @@ The repository also provides examples that show how to use the libraries.
     - Asymmetric encryption
     - Symmetric encryption
     - Updatable state
+    - Immutable local-state storage predicates and invariant recovery (`DyExtensions.Actions.PersistentLocalState`)
     - Helper functions and theorems for events and random value generation
 - **DyLibraries:**
     - Secure communication library (confidential messages, authenticated messages, confidential and authenticated messages, and TLS-like request-response communication)

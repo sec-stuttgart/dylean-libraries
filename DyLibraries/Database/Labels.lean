@@ -5,6 +5,37 @@ public import DyExtensions.Actions.PersistentLocalUpdateableState
 namespace DY.Database
 public section
 
+/-- A value is exposed when any compromised row version contains it in the selected field. -/
+def valueCompromised
+  {RowT ValueT : Type} [ExecTraceTypes]
+  [ExecTraceTypes.Has (PersistentLocalUpdateableState.Compromise.ExecEntryT RowT)]
+  (field : RowT → ValueT) (value : ValueT) (tr : ExecTrace) :
+  Prop
+:=
+  ∃ holder rowId, ∃ row : RowT, field row = value ∧ PersistentLocalUpdateableState.LocalStateCompromised holder rowId row tr
+
+/-- Exposure of a selected field value persists on every extension of the trace. -/
+theorem valueCompromised.later
+  {RowT ValueT : Type} [ExecTraceTypes]
+  [ExecTraceTypes.Has (PersistentLocalUpdateableState.Compromise.ExecEntryT RowT)]
+  (field : RowT → ValueT) (value : ValueT) (a b : ExecTrace) :
+  a ≤ b → valueCompromised field value a → valueCompromised field value b
+:= by
+  rintro later ⟨holder, rowId, row, same, compromised⟩
+  exact ⟨holder, rowId, row, same, PersistentLocalUpdateableState.LocalStateCompromised_le _ _ _ a b later compromised⟩
+
+grind_pattern [grind_later] valueCompromised.later => a ≤ b, valueCompromised field value a
+
+/-- A value label accounts for every compromised row version sharing the selected field value. -/
+def valueLabel
+  {RowT ValueT : Type} [ExecTraceTypes]
+  [ExecTraceTypes.Has (PersistentLocalUpdateableState.Compromise.ExecEntryT RowT)]
+  (field : RowT → ValueT) (value : ValueT) :
+  Label
+:=
+  { isCorrupt := valueCompromised field value
+    isCorruptLater := valueCompromised.later field value }
+
 /-- Compromise of any state version owned by this participant in this database family. -/
 def participantLabel
   (RowT : Type) [ExecTraceTypes]
@@ -37,6 +68,16 @@ def stateContentLabel
   Label
 :=
   PersistentLocalUpdateableState.label p sid content
+
+/-- A value label flows to the label for any exact row version containing that value. -/
+theorem valueLabel_canFlow_stateContentLabel
+  {RowT ValueT : Type} [ExecTraceTypes]
+  [ExecTraceTypes.Has (PersistentLocalUpdateableState.Compromise.ExecEntryT RowT)]
+  (field : RowT → ValueT) (p : Participant) (sid : Nat) (content : RowT) (tr : ExecTrace) :
+  (valueLabel field (field content)).canFlow (stateContentLabel RowT p sid content) tr
+:= by
+  intro later _ compromised
+  exact ⟨p, sid, content, rfl, (PersistentLocalUpdateableState.label_isCorrupt _ _ _ later).mp compromised⟩
 
 /-- A participant label flows to each of that participant's state-address labels. -/
 theorem participantLabel_canFlow_stateLabel

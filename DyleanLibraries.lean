@@ -1,5 +1,6 @@
 module
 
+public import DyExtensions.Actions.PersistentLocalState
 public import DyExtensions.Actions.ProtocolEvent
 public import DyExtensions.Actions.Random
 public import DyExtensions.Comparse
