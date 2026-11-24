@@ -27,7 +27,7 @@ instance
   [BytesFunctor.Has Concat.SubF] [BytesLength.Has Concat.SubF.length] :
   Comparse.ParseableSerializeable (Db RowT)
 :=
-  .make (.triviallyIsomorphic (.list .slowNat) Db.mk Db.rows)
+  .make (.triviallyIsomorphic (.list .unboundedNat) Db.mk Db.rows)
 
 /-- A table's numeric pointers satisfy every compatible byte predicate. -/
 theorem Db.isWellFormed

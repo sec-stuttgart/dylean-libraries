@@ -10,37 +10,45 @@ public section
 /-- Addresses written by a trace, parameterized by the entry representation. -/
 @[expose]
 def modifies (addressOf : α → Option δ) (tr : Trace α) (address : δ) : Prop :=
-  match tr with
-  | .nil => False
-  | .snoc before entry => addressOf entry = some address ∨ modifies addressOf before address
+  tr.fold False (fun acc _ entry => addressOf entry = some address ∨ acc)
+
+/-- An empty trace writes no address. -/
+@[simp] theorem modifies_empty (addressOf : α → Option δ) (address : δ) : ¬ modifies addressOf .empty address := by simp [modifies]
+
+/-- Appending an entry adds precisely its write address. -/
+@[simp]
+theorem modifies_push
+  (addressOf : α → Option δ) (tr : Trace α) (entry : α) (address : δ) :
+  modifies addressOf (tr.push entry) address ↔ addressOf entry = some address ∨ modifies addressOf tr address
+:= by simp only [modifies, fold_push]
 
 /-- An address is modified exactly when a write to it occurs on the trace. -/
 theorem modifies_spec
   (addressOf : α → Option δ) (tr : Trace α) (address : δ) :
   modifies addressOf tr address ↔ ∃ i h, addressOf (tr.at i h) = some address
 := by
-  induction tr with
-  | nil => simp [modifies, length]
+  induction tr using snocInduction with
+  | empty => simp only [modifies, fold_empty]; simp [length, Trace.empty]
   | snoc tr e ih =>
-    simp only [modifies, ih]
+    simp only [modifies_push, ih]
     constructor
     · intro h
       rcases h with h | ⟨i, hi, h⟩
-      · exact ⟨tr.length, by simp [length], by simpa [Trace.at] using h⟩
-      · exact ⟨i, by simp only [length]; omega, by simpa [Trace.at, show i ≠ tr.length by omega] using h⟩
+      · exact ⟨tr.length, by simp [push_length], by simpa [at_push] using h⟩
+      · exact ⟨i, by simp only [push_length]; omega, by simpa [at_push, show i ≠ tr.length by omega] using h⟩
     · rintro ⟨i, hi, h⟩
       by_cases he : i = tr.length
-      · left; simpa [Trace.at, he] using h
+      · left; simpa [at_push, he] using h
       · right
-        have hi' : i < tr.length := by simp only [length] at hi; omega
-        exact ⟨i, hi', by simpa [Trace.at, he] using h⟩
+        have hi' : i < tr.length := by simp only [push_length] at hi; omega
+        exact ⟨i, hi', by simpa [at_push, he] using h⟩
 
 /-- Concatenation takes the union of the modified addresses. -/
 theorem modifies_concat
   (addressOf : α → Option δ) (a b : Trace α) (address : δ) :
   modifies addressOf (concat a b) address ↔ modifies addressOf a address ∨ modifies addressOf b address
 := by
-  induction b <;> simp_all [concat, modifies] <;> grind
+  induction b using snocInduction <;> simp_all [concat_push] <;> grind
 
 /-- A suffix that does not write an address cannot change a lookup for that address. -/
 theorem lastValue_of_not_modifies

@@ -79,8 +79,8 @@ public instance : ParseableSerializeable SenderAuthentication := .make <|
 
 @[expose] def ClientSendRequest.internalMf [ParseableSerializeable α] :
     ∀ id, Comparse.ExtensibleMessageFormat Bytes (ClientSendRequest.internalType α id)
-  | 0 => .prod .slowBytes (.prod .slowString ParseableSerializeable.mf)
-  | 1 => .prod .slowBytes (.prod .slowString (.prod .slowString ParseableSerializeable.mf))
+  | 0 => .prod .unboundedBytes (.prod .unboundedString ParseableSerializeable.mf)
+  | 1 => .prod .unboundedBytes (.prod .unboundedString (.prod .unboundedString ParseableSerializeable.mf))
 
 @[expose] def ClientSendRequest.mf [ParseableSerializeable α] :
     Comparse.ExtensibleMessageFormat Bytes (ClientSendRequest α) :=
@@ -140,8 +140,8 @@ public theorem ClientSendRequest.IsWellFormed_eq [ParseableSerializeable α]
 
 @[expose] def ServerReceiveRequest.internalMf [ParseableSerializeable α] :
     ∀ id, Comparse.ExtensibleMessageFormat Bytes (ServerReceiveRequest.internalType α id)
-  | 0 => .prod .slowBytes ParseableSerializeable.mf
-  | 1 => .prod .slowBytes (.prod .slowString ParseableSerializeable.mf)
+  | 0 => .prod .unboundedBytes ParseableSerializeable.mf
+  | 1 => .prod .unboundedBytes (.prod .unboundedString ParseableSerializeable.mf)
 
 @[expose] def ServerReceiveRequest.mf [ParseableSerializeable α] :
     Comparse.ExtensibleMessageFormat Bytes (ServerReceiveRequest α) :=
@@ -197,7 +197,7 @@ public theorem ServerReceiveRequest.IsWellFormed_eq [ParseableSerializeable α]
 
 public instance [ParseableSerializeable α] : ParseableSerializeable (ClientReceiveResponse α) :=
   .make <| .triviallyIsomorphic
-    (.prod .slowBytes (.prod .slowString ParseableSerializeable.mf))
+    (.prod .unboundedBytes (.prod .unboundedString ParseableSerializeable.mf))
     (fun ⟨key, server, response⟩ => { server, response, key })
     (fun { server, response, key } => ⟨key, server, response⟩)
 

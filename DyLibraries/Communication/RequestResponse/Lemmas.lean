@@ -127,13 +127,13 @@ public theorem receiveRequest.properties
 := by
   intro tr
   simp only [receiveRequest, Traceful.run_bind]
-  split <;> simp_all
-  split <;> simp_all [Traceful.run_bind, Traceful.run_pure, Traceful.run_failure]
+  split <;> simp_all [-bind_pure_comp]
+  split <;> simp_all [-bind_pure_comp, Traceful.run_bind, Traceful.run_pure, Traceful.run_failure]
   rename_i message hmessage hwire request hrequest
   have hlogged := eventLogged_append ((receiveConfidential (α := WireMessage α) handles server messageHandle).run tr).2.val (.serverReceiveRequest none server request.request request.key : RequestResponseEvent α)
-  split <;> simp_all
+  split <;> simp_all [-bind_pure_comp]
   dsimp only [Traceful.run, ProtocolEvent.logEvent, appendEntry, Traceful.mk, Bind.bind, Pure.pure] at *
-  grind only [Trace.EventLogged_le, Subtype.property]
+  grind only [Trace.EventLogged_le, Trace.le_trans, Subtype.property]
 
 /-- Successful authenticated reception logs the sender and returned payload. -/
 public theorem receiveRequestAuthenticated.properties
@@ -145,13 +145,13 @@ public theorem receiveRequestAuthenticated.properties
 := by
   intro tr
   simp only [receiveRequestAuthenticated, Traceful.run_bind]
-  split <;> simp_all
-  split <;> simp_all [Traceful.run_bind, Traceful.run_pure, Traceful.run_failure]
+  split <;> simp_all [-bind_pure_comp]
+  split <;> simp_all [-bind_pure_comp, Traceful.run_bind, Traceful.run_pure, Traceful.run_failure]
   rename_i message hmessage hwire request hrequest
   have hlogged := eventLogged_append ((receiveConfidentialAuthenticated (α := WireMessage α) handles server messageHandle).run tr).2.val (.serverReceiveRequest (some message.sender) server request.request request.key : RequestResponseEvent α)
-  split <;> simp_all
+  split <;> simp_all [-bind_pure_comp]
   dsimp only [Traceful.run, ProtocolEvent.logEvent, appendEntry, Traceful.mk, Bind.bind, Pure.pure] at *
-  grind only [Trace.EventLogged_le, Subtype.property]
+  grind only [Trace.EventLogged_le, Trace.le_trans, Subtype.property]
 
 end ExecutionProperties
 

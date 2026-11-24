@@ -97,11 +97,11 @@ theorem checkedRequest (tr : ProofTrace) (htr : tr.Invariant) (client server : P
   intro tr _ htr
   unfold Client.finish
   step
-  rename_i state hrecent hstate
-  have hw : PersistentLocalUpdateableState.StateWasSet tr.erase client stateId state := by
-    obtain ⟨time, hw, _⟩ := PersistentLocalUpdateableState.isMostRecentStateFor_spec client stateId state tr.erase hrecent
+  expose_names
+  have hw : PersistentLocalUpdateableState.StateWasSet tr.erase client stateId __x := by
+    obtain ⟨time, hw, _⟩ := PersistentLocalUpdateableState.isMostRecentStateFor_spec client stateId __x tr.erase h___x
     exact ⟨time, hw⟩
-  clear hrecent
+  clear h___x
   split
   · expose_names
     let metadata : CommunicationMetadata Payload := {client := sent.client, server := sent.server, request := sent.request, key := sent.key, stateHandle := stateId}

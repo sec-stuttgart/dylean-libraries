@@ -241,7 +241,7 @@ public def successfulCoreModes : Traceful Bool := do
   guard (both = { sender := "Alice", receiver := "Bob", payload := runtimeRequestPayload })
   pure true
 
-#guard (successfulCoreModes.run Trace.nil).fst = some true
+#guard (successfulCoreModes.run Trace.empty).fst = some true
 
 public def successfulAnonymousRequestResponse : Traceful Bool := do
   let (clientHandles, serverHandles) ←
@@ -258,7 +258,7 @@ public def successfulAnonymousRequestResponse : Traceful Bool := do
   guard (replayed = runtimeResponsePayload)
   pure true
 
-#guard (successfulAnonymousRequestResponse.run Trace.nil).fst = some true
+#guard (successfulAnonymousRequestResponse.run Trace.empty).fst = some true
 
 public def successfulAuthenticatedRequestResponse : Traceful Bool := do
   let (clientHandles, serverHandles) ←
@@ -275,14 +275,14 @@ public def successfulAuthenticatedRequestResponse : Traceful Bool := do
   guard (response = runtimeResponsePayload)
   pure true
 
-#guard (successfulAuthenticatedRequestResponse.run Trace.nil).fst = some true
+#guard (successfulAuthenticatedRequestResponse.run Trace.empty).fst = some true
 
 public def wrongCoreReceiverFails : Traceful Unit := do
   let (alice, bob) ← initializeCore (α := Payload) "Alice" "Bob"
   let handle ← sendConfidential alice "Alice" "Bob" runtimeRequestPayload
   let _ ← receiveConfidential (α := Payload) bob "Mallory" handle
 
-#guard (wrongCoreReceiverFails.run Trace.nil).fst = none
+#guard (wrongCoreReceiverFails.run Trace.empty).fst = none
 
 public def wrongCoreKeysFail : Traceful Unit := do
   let (alice, _) ← initializeCore (α := Payload) "Alice" "Bob"
@@ -290,14 +290,14 @@ public def wrongCoreKeysFail : Traceful Unit := do
   let handle ← sendConfidentialAuthenticated alice "Alice" "Bob" runtimeRequestPayload
   let _ ← receiveConfidentialAuthenticated (α := Payload) secondBob "Bob" handle
 
-#guard (wrongCoreKeysFail.run Trace.nil).fst = none
+#guard (wrongCoreKeysFail.run Trace.empty).fst = none
 
 public def malformedCoreMessageFails : Traceful Unit := do
   let (_, bob) ← initializeCore (α := Payload) "Alice" "Bob"
   let handle ← Network.sendMessage (Comparse.BytesLike.empty : Bytes)
   let _ ← receiveConfidential (α := Payload) bob "Bob" handle
 
-#guard (malformedCoreMessageFails.run Trace.nil).fst = none
+#guard (malformedCoreMessageFails.run Trace.empty).fst = none
 
 public def unknownServerStateFails : Traceful Unit := do
   let (clientHandles, serverHandles) ←
@@ -308,7 +308,7 @@ public def unknownServerStateFails : Traceful Unit := do
   let badMetadata := serverMetadata + 1
   let _ ← sendResponse "Bob" badMetadata runtimeResponsePayload
 
-#guard (unknownServerStateFails.run Trace.nil).fst = none
+#guard (unknownServerStateFails.run Trace.empty).fst = none
 
 public def wrongParticipantFails : Traceful Unit := do
   let (clientHandles, serverHandles) ←
@@ -319,7 +319,7 @@ public def wrongParticipantFails : Traceful Unit := do
   let responseHandle ← sendResponse "Bob" serverMetadata runtimeResponsePayload
   let _ ← receiveResponse (α := Payload) "Mallory" clientMetadata responseHandle
 
-#guard (wrongParticipantFails.run Trace.nil).fst = none
+#guard (wrongParticipantFails.run Trace.empty).fst = none
 
 public def unknownClientStateFails : Traceful Unit := do
   let (clientHandles, serverHandles) ←
@@ -331,7 +331,7 @@ public def unknownClientStateFails : Traceful Unit := do
   let badMetadata := clientMetadata + 1
   let _ ← receiveResponse (α := Payload) "Alice" badMetadata responseHandle
 
-#guard (unknownClientStateFails.run Trace.nil).fst = none
+#guard (unknownClientStateFails.run Trace.empty).fst = none
 
 public def wrongStateVariantFails : Traceful Unit := do
   let (clientHandles, serverHandles) ←
@@ -349,7 +349,7 @@ public def wrongStateVariantFails : Traceful Unit := do
   let badMetadata := wrongHandle
   let _ ← receiveResponse (α := Payload) "Alice" badMetadata responseHandle
 
-#guard (wrongStateVariantFails.run Trace.nil).fst = none
+#guard (wrongStateVariantFails.run Trace.empty).fst = none
 
 public def compromiseStateSucceeds : Traceful Bool := do
   let (clientHandles, _) ← initializeRequestResponse (α := Payload) "Alice" "Bob"
@@ -364,7 +364,7 @@ public def compromiseStateSucceeds : Traceful Bool := do
     pure true
   | _ => failure
 
-#guard (compromiseStateSucceeds.run Trace.nil).fst = some true
+#guard (compromiseStateSucceeds.run Trace.empty).fst = some true
 
 /-- Multiple requests retain separate IDs even when responses arrive out of order. -/
 public def independentRequestStates : Traceful Bool := do
@@ -382,7 +382,7 @@ public def independentRequestStates : Traceful Bool := do
   let replay ← receiveResponse (α := Payload) "Alice" firstClientId firstResponse
   pure (first.value = "first" && second.value = "second" && replay = first)
 
-#guard (independentRequestStates.run Trace.nil).fst = some true
+#guard (independentRequestStates.run Trace.empty).fst = some true
 
 /-- The authenticated response API rejects an anonymous request ID. -/
 public def anonymousIdRejectedByAuthenticatedReceive : Traceful Payload := do
@@ -392,7 +392,7 @@ public def anonymousIdRejectedByAuthenticatedReceive : Traceful Payload := do
   let responseMessage ← sendResponse "Bob" serverId runtimeResponsePayload
   receiveResponseAuthenticated (α := Payload) "Alice" clientId responseMessage
 
-#guard (anonymousIdRejectedByAuthenticatedReceive.run Trace.nil).fst = none
+#guard (anonymousIdRejectedByAuthenticatedReceive.run Trace.empty).fst = none
 
 end RuntimeTests
 

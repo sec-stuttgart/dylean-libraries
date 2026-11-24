@@ -56,7 +56,7 @@ public theorem genRand.fresh_spec
     Traceful.run_mk, Traceful.run_pure]
   intro tr _ htr
   refine ⟨tr.append (ProofEntryT.mk size (label (makeRand tr.length size)) usage), ?_⟩
-  simp_all [Trace.append_erase, Trace.append_le, Trace.invariant_append,
+  simp_all [Trace.erase_append, Trace.append_le, Trace.invariant_append,
     Trace.erase_length, JustGenerated, ErasableProofEntry.erase, SubTraceInvariant.invariant]
   have hat := Trace.at?_append tr (ProofEntryT.mk size (label (makeRand tr.length size)) usage)
   simp only [Trace.append, Trace.length] at *

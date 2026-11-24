@@ -5,7 +5,7 @@ import all Login.SanityChecks
 
 /-- Emit only DY* JSON lines on stdout; report an unexpected failed run on stderr. -/
 public def main : IO UInt32 := do
-  let (result, tr) := DY.Example.Login.successfulLogin.run DY.Trace.nil
+  let (result, tr) := DY.Example.Login.successfulLogin.run DY.Trace.empty
   let stdout ← IO.getStdout
   stdout.putStr (DY.Example.Login.loginTraceToString tr.val)
   if result == some true then

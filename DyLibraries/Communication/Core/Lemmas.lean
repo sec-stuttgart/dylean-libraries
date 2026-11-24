@@ -64,7 +64,7 @@ private theorem verifyAndDecryptMessage_parts
     instMonadErr._aux_13, instMonadErr._aux_5, OptionT.bind, OptionT.pure,
     OptionT.mk, OptionT.fail, failure, instAlternativeErr._aux_1] at h
   repeat' (split at * <;> simp_all)
-  all_goals grind (splits := 40) (gen := 20)
+  all_goals grind (branches := 100) (gen := 20)
 
 @[instance]
 private theorem getSender_preservesTrace (messageBytes : Bytes) (secretKey : Option Bytes) :
@@ -85,7 +85,7 @@ private theorem verifyMessage_plain_parts
   simp only [verifyMessage, bind, pure, guard, instMonadErr._aux_13, instMonadErr._aux_5,
     OptionT.bind, OptionT.pure, OptionT.mk, OptionT.fail, failure, instAlternativeErr._aux_1] at h
   repeat' (split at * <;> simp_all)
-  all_goals grind (splits := 40) (gen := 20)
+  all_goals grind (branches := 100) (gen := 20)
 
 end DY.Communication
 

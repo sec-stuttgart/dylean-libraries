@@ -207,7 +207,7 @@ theorem getMostRecentStateFor_append
   getMostRecentStateFor (tr.append (State.ExecEntryT.mk p sid s)) p sid = some s
 := by
   have h := (stateFor_eq_some p sid (TraceEntryHas.inj (State.ExecEntryT.mk p sid s)) s).mpr rfl
-  simp [getMostRecentStateFor, Trace.lastValue, Trace.append, Trace.searchLastWith, h]
+  simp [getMostRecentStateFor, Trace.lastValue, Trace.append_eq_push, h]
 
 /-- A write preserves validity when its new value is valid and its latest predecessor permits the update. -/
 @[instance]
@@ -225,7 +225,7 @@ theorem setLocalState.spec
   simp only [hoareTriple, wp, setLocalState, appendEntry, Traceful.run_mk]
   intro tr hpre hinv
   refine ⟨tr.append (State.ExecEntryT.mk p sid s), ?_⟩
-  simp [Trace.append_erase, ErasableProofEntry.erase, Trace.invariant_append, SubTraceInvariant.invariant,
+  simp [Trace.erase_append, ErasableProofEntry.erase, Trace.invariant_append, SubTraceInvariant.invariant,
     hpre, hinv, Trace.append_le, StateWasSetAt, IsMostRecentStateFor, getMostRecentStateFor_append]
   exact ⟨by simpa using Trace.at?_append tr.erase (State.ExecEntryT.mk p sid s), hpre.2⟩
 
@@ -300,8 +300,8 @@ theorem modifies_setLocalState
   Traceful.modifies (addressOf StateT) (setLocalState p sid s) tr address ↔ address = (p, sid)
 := by
   have hp := (TraceEntryHas.inj_proj_eq (α := ExecTrace.Entry) (TraceEntryHas.inj (State.ExecEntryT.mk p sid s)) (State.ExecEntryT.mk p sid s)).mpr rfl
-  simp [Traceful.modifies, setLocalState, appendEntry, Traceful.run_mk, Trace.append,
-    Trace.subtract_snoc _ _ _ (Trace.le_refl tr), Trace.modifies, addressOf, hp, eq_comm]
+  simp [Traceful.modifies, setLocalState, appendEntry, Traceful.run_mk, Trace.append_eq_push,
+    Trace.subtract_snoc _ _ _ (Trace.le_refl tr), Trace.modifies_push, addressOf, hp, eq_comm]
 
 /-- Reading state modifies no address. -/
 theorem modifies_getLocalState
@@ -409,14 +409,21 @@ def computeNewSessionId
   (StateT : Type) [ExecTraceTypes] [ExecTraceTypes.Has (State.ExecEntryT StateT)]
   (p : Participant) (tr : ExecTrace) : Nat
 :=
-  match tr with
-  | .nil => 0
-  | .snoc before entry =>
+  tr.fold 0 (fun acc _ entry =>
     match addressOf StateT entry with
-    | some (owner, sid) =>
-      if owner = p then max (computeNewSessionId StateT p before) (sid + 1)
-      else computeNewSessionId StateT p before
-    | none => computeNewSessionId StateT p before
+    | some (owner, sid) => if owner = p then max acc (sid + 1) else acc
+    | none => acc)
+
+/-- Appending a write extends the bound only for its owner. -/
+@[simp]
+theorem computeNewSessionId_push
+  (StateT : Type) [ExecTraceTypes] [ExecTraceTypes.Has (State.ExecEntryT StateT)]
+  (p : Participant) (tr : ExecTrace) (entry : ExecTrace.Entry) :
+  computeNewSessionId StateT p (tr.push entry) =
+    match addressOf StateT entry with
+    | some (owner, sid) => if owner = p then max (computeNewSessionId StateT p tr) (sid + 1) else computeNewSessionId StateT p tr
+    | none => computeNewSessionId StateT p tr
+:= by simp only [computeNewSessionId, Trace.fold_push]
 
 /-- Fresh ID computation exceeds all previously written IDs for the participant. -/
 theorem computeNewSessionId_bound
@@ -430,19 +437,22 @@ theorem computeNewSessionId_bound
     have hp := (TraceEntryHas.inj_proj_eq (tr.at time hi) (State.ExecEntryT.mk p sid s)).mpr he
     simp [addressOf, hp]
   clear he hw
-  induction tr with
-  | nil => simp [Trace.length] at hi
+  induction tr using Trace.snocInduction with
+  | empty => simp [Trace.length, Trace.empty] at hi
   | snoc tr e ih =>
     by_cases ht : time = tr.length
     · subst time
-      simp only [Trace.at, dite_true] at haddr
-      simp [computeNewSessionId, haddr]; omega
-    · have hit : time < tr.length := by simp only [Trace.length] at hi; omega
-      have haddr' : addressOf StateT (tr.at time hit) = some (p, sid) := by simpa [Trace.at, ht] using haddr
+      simp only [Trace.at_push, dite_true] at haddr
+      simp only [computeNewSessionId_push, haddr, ↓reduceIte]
+      exact Nat.lt_of_lt_of_le (Nat.lt_succ_self sid) (Nat.le_max_right _ _)
+    · have hit : time < tr.length := by simp only [Trace.push_length] at hi; omega
+      have haddr' : addressOf StateT (tr.at time hit) = some (p, sid) := by simpa [Trace.at_push, ht] using haddr
       have hb := ih hit haddr'
-      unfold computeNewSessionId
+      rw [computeNewSessionId_push]
       split
-      · split <;> omega
+      · split
+        · exact Nat.lt_of_lt_of_le hb (Nat.le_max_left _ _)
+        · exact hb
       · exact hb
 
 /-- A freshly computed ID has no current or historical value. -/

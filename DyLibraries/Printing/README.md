@@ -79,7 +79,7 @@ Combine entry printers with **the same source list and order** as `ExecEntryT`:
 Then render the returned trace:
 
 ```lean
-let (_, tr) := protocol.run Trace.nil
+let (_, tr) := protocol.run Trace.empty
 IO.print (Printing.traceToString entryPrinter Printing.defaultPrinters tr.val)
 ```
 

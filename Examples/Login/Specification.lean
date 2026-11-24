@@ -30,7 +30,7 @@ structure Payload where
   secret : Bytes
   deriving DecidableEq
 
-instance : ParseableSerializeable Payload := .make <| .triviallyIsomorphic (.prod .slowString (.prod .slowString .bytes)) (fun ⟨kind, client, secret⟩ => {kind, client, secret}) (fun p => (p.kind, p.client, p.secret))
+instance : ParseableSerializeable Payload := .make <| .triviallyIsomorphic (.prod .unboundedString (.prod .unboundedString .bytes)) (fun ⟨kind, client, secret⟩ => {kind, client, secret}) (fun p => (p.kind, p.client, p.secret))
 
 @[simp, grind =] theorem Payload.IsWellFormed_eq (pre : Bytes → τ → Prop) [BytesCompatibleTracePred pre] (p : Payload) (tr : τ) : IsWellFormed pre p tr = pre p.secret tr := by
   simp [IsWellFormed, ParseableSerializeable.mf]
@@ -47,7 +47,7 @@ structure Credentials where
   password : Bytes
   deriving DecidableEq
 
-instance : ParseableSerializeable Credentials := .make <| .triviallyIsomorphic (.prod .slowString (.prod .slowString .bytes)) (fun ⟨client, server, password⟩ => {client, server, password}) (fun p => (p.client, p.server, p.password))
+instance : ParseableSerializeable Credentials := .make <| .triviallyIsomorphic (.prod .unboundedString (.prod .unboundedString .bytes)) (fun ⟨client, server, password⟩ => {client, server, password}) (fun p => (p.client, p.server, p.password))
 
 /-- Credentials contain only their password as symbolic bytes. -/
 @[simp, grind =]

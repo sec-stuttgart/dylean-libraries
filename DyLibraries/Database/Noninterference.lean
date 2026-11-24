@@ -64,8 +64,8 @@ theorem modifies_appendEntry
   Traceful.modifies addressOf (appendEntry entry) tr address ↔
     addressOf (TraceEntryHas.inj entry) = some address
 := by
-  simp [Traceful.modifies, appendEntry, Traceful.run_mk, Trace.append,
-    Trace.subtract_snoc _ _ _ (Trace.le_refl tr), Trace.modifies]
+  simp [Traceful.modifies, appendEntry, Traceful.run_mk, Trace.append_eq_push,
+    Trace.subtract_snoc _ _ _ (Trace.le_refl tr), Trace.modifies_push]
 
 /-- Logging an event does not modify a state family with disjoint trace entries. -/
 theorem modifies_logEvent

@@ -28,13 +28,13 @@ theorem eventLogged_append_iff
     by_cases htime : time = tr.length
     · right
       subst time
-      simpa [Trace.append, Trace.at] using he
+      simpa [Trace.append_eq_push, Trace.at_push] using he
     · left
-      have hi' : time < tr.length := by simp only [Trace.append, Trace.length] at hi; omega
-      exact ⟨time, (Trace.at?_eq_some _ _ _).mpr ⟨hi', by simpa [Trace.append, Trace.at, htime] using he⟩⟩
+      have hi' : time < tr.length := by simp only [Trace.append_length] at hi; omega
+      exact ⟨time, (Trace.at?_eq_some _ _ _).mpr ⟨hi', by simpa [Trace.append_eq_push, Trace.at_push, htime] using he⟩⟩
   · rintro (h | h)
     · exact Trace.EventLogged_le event tr _ (Trace.append_le _ _) h
-    · exact ⟨tr.length, (Trace.at?_eq_some _ _ _).mpr ⟨by simp [Trace.append, Trace.length], by simpa [Trace.append, Trace.at] using h⟩⟩
+    · exact ⟨tr.length, (Trace.at?_eq_some _ _ _).mpr ⟨by simp [Trace.append, Trace.length], by simpa [Trace.append_eq_push, Trace.at_push] using h⟩⟩
 
 section
 variable {RowT : Type} [BytesFunctor] [BytesLength]
@@ -52,7 +52,7 @@ theorem compromiseRow_run
     ((compromise RowT p ptr).run tr).2.val =
       (tr.append (ProtocolEvent.ExecEntryT.mk (Compromise.CompromiseEvent.mk p ptr row))).append (Network.ExecEntryT.mk (Comparse.serialize row))
 := by
-  simp [compromise, getLocalState, Traceful.run_bind, Traceful.run_mk, hrow, ProtocolEvent.logEvent, appendEntry, Traceful.run_pure, Network.sendMessage, Trace.append, Trace.length]
+  simp [compromise, getLocalState, Traceful.run_bind, Traceful.run_mk, hrow, ProtocolEvent.logEvent, appendEntry, Network.sendMessage, Trace.append, Trace.length]
 
 /-- Exposing a row corrupts exactly its value label; other labels change only if already compromised. -/
 theorem compromiseRow_localStateCompromised_iff

@@ -42,9 +42,9 @@ public instance : PayloadPrinter String where
 
 #combine +toplevel into ExecEntryT, entryPrinter from Network, Random, ProtocolEvent String, PersistentLocalState.CompromisableState String
 
-def sample : ExecTrace := Trace.nil.append ({length := 32} : Random.ExecEntryT) |>.append ({msg := nonce} : Network.ExecEntryT) |>.append ({ev := "Alice\"\n\\é"} : ProtocolEvent.ExecEntryT String)
+def sample : ExecTrace := Trace.empty.append ({length := 32} : Random.ExecEntryT) |>.append ({msg := nonce} : Network.ExecEntryT) |>.append ({ev := "Alice\"\n\\é"} : ProtocolEvent.ExecEntryT String)
 
-#guard traceToString entryPrinter defaultPrinters Trace.nil = ""
+#guard traceToString entryPrinter defaultPrinters Trace.empty = ""
 #guard (traceToJson entryPrinter defaultPrinters sample).length = 3
 #guard (traceToJson entryPrinter defaultPrinters sample).map (fun j => (j.getObjValAs? Nat "TraceID").toOption) = [some 0, some 1, some 2]
 #guard (traceToJson entryPrinter defaultPrinters sample).all (fun j => (_root_.Lean.Json.parse j.compress).toOption == some j)
@@ -54,7 +54,7 @@ def sample : ExecTrace := Trace.nil.append ({length := 32} : Random.ExecEntryT) 
 #guard (Printers.message {defaultPrinters with messageToString := fun _ => some "decoded"} nonce) = "decoded"
 #guard (Printers.message {defaultPrinters with messageToString := fun _ => none} nonce) = "Nonce #7"
 
-def stateAndCompromise : ExecTrace := Trace.nil.append ({st := {participant := "Alice", state := "state"}} : PersistentGlobalState.State.ExecEntryT (PersistentLocalState.LocalState String)) |>.append ({ev := {state := {participant := "Alice", state := "state"}}} : ProtocolEvent.ExecEntryT (PersistentGlobalState.Compromise.CompromiseEvent (PersistentLocalState.LocalState String)))
+def stateAndCompromise : ExecTrace := Trace.empty.append ({st := {participant := "Alice", state := "state"}} : PersistentGlobalState.State.ExecEntryT (PersistentLocalState.LocalState String)) |>.append ({ev := {state := {participant := "Alice", state := "state"}}} : ProtocolEvent.ExecEntryT (PersistentGlobalState.Compromise.CompromiseEvent (PersistentLocalState.LocalState String)))
 
 #guard (traceToJson entryPrinter defaultPrinters stateAndCompromise).map (fun j => (j.getObjValAs? String "Type").toOption) = [some "Session", some "Event"]
 #guard (traceToJson entryPrinter defaultPrinters stateAndCompromise).map (fun j => (j.getObjValAs? String "Principal").toOption) = [some "Alice", some "Alice"]

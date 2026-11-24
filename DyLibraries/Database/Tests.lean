@@ -22,7 +22,7 @@ public section
 abbrev Row := Nat × Nat
 
 instance : Comparse.ParseableSerializeable Row :=
-  .make (.prod .slowNat (Comparse.NonExtensibleMessageFormat.toExtensible .slowNat))
+  .make (.prod .unboundedNat (Comparse.NonExtensibleMessageFormat.toExtensible .unboundedNat))
 
 instance : DbTypes Row where
   keys := [⟨Nat, inferInstance, Prod.fst⟩]
@@ -126,12 +126,12 @@ example (p : Participant) (sid : Nat) (row : Row) :
   step by trivial
   trivial
 
-private def initialized : ExecTrace := ((initializeDb Row "alice").run .nil).2.val
+private def initialized : ExecTrace := ((initializeDb Row "alice").run .empty).2.val
 private def inserted : ExecTrace := ((addRow "alice" 0 ((7, 1) : Row)).run initialized).2.val
 private def updated : ExecTrace := ((updateRow "alice" 0 ((7, 2) : Row)).run inserted).2.val
 
 -- Kernel-checked executions exercise a table and row sharing numeric ID zero.
-example : ((initializeDb Row "alice").run .nil).1 = some 0 := by rfl
+example : ((initializeDb Row "alice").run .empty).1 = some 0 := by rfl
 example : ((addRow "alice" 0 ((7, 1) : Row)).run initialized).1 = some 0 := by rfl
 example : ((dbFind "alice" 0 (fun row : Row => row.1 == 7)).run inserted).1 = some (0, (7, 1)) := by rfl
 example : ((dbFind "alice" 0 (fun row : Row => row.1 == 7)).run updated).1 = some (0, (7, 2)) := by rfl
@@ -177,7 +177,7 @@ example : ((compromise Row "alice" 99).run twoRows).2.val = twoRows :=
 
 -- A dangling pointer fails the search rather than silently skipping to a later row.
 private def malformed : ExecTrace :=
-  (Trace.nil.append (State.ExecEntryT.mk "alice" 0 ((7, 1) : Row))).append (State.ExecEntryT.mk "alice" 0 (Db.mk (RowT := Row) [99, 0]))
+  (Trace.empty.append (State.ExecEntryT.mk "alice" 0 ((7, 1) : Row))).append (State.ExecEntryT.mk "alice" 0 (Db.mk (RowT := Row) [99, 0]))
 example : ((dbFind "alice" 0 (fun _ : Row => true)).run malformed).1 = none := by rfl
 
 -- Failed insertions preserve the exact trace, not just the stored row values.

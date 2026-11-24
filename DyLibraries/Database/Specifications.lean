@@ -75,13 +75,13 @@ theorem initializeDb.proof
   let afterEvent := tr.append (ProtocolEvent.ExecEntryT.mk event)
   have hfresh : IsMostRecentStateFor (StateT := Db RowT) p sid none afterEvent.erase := by
     have h := isMostRecentStateFor_logEvent disjoint p sid none event tr.erase (computeNewSessionId_fresh (Db RowT) p tr.erase)
-    simpa [ProtocolEvent.logEvent, Traceful.run_bind, appendEntry, Traceful.run_mk, Traceful.run_pure, afterEvent, Trace.append_erase, ErasableProofEntry.erase] using h
+    simpa [-bind_pure_comp, ProtocolEvent.logEvent, Traceful.run_bind, appendEntry, Traceful.run_mk, Traceful.run_pure, afterEvent, Trace.erase_append, ErasableProofEntry.erase] using h
   have hev : afterEvent.Invariant := by
     rw [Trace.invariant_append]
     exact ⟨hinv, dbEventPredicate_empty tr.erase p sid⟩
   have hlogged : afterEvent.erase.EventLogged event := by
     refine ⟨tr.erase.length, ?_⟩
-    simpa only [afterEvent, Trace.append_erase, ErasableProofEntry.erase, Trace.EventLoggedAt] using Trace.at?_append tr.erase (ProtocolEvent.ExecEntryT.mk event)
+    simpa only [afterEvent, Trace.erase_append, ErasableProofEntry.erase, Trace.EventLoggedAt] using Trace.at?_append tr.erase (ProtocolEvent.ExecEntryT.mk event)
   have hstate : (afterEvent.append (State.ExecEntryT.mk p sid (Db.mk (RowT := RowT) []))).Invariant := by
     rw [Trace.invariant_append]
     refine ⟨hev, hlogged, ?_⟩
@@ -93,8 +93,8 @@ theorem initializeDb.proof
     IsMostRecentStateFor p sid (some (Db.mk (RowT := RowT) [])) out.erase ∧ out.Invariant ∧
     ((tr.erase.append (ProtocolEvent.ExecEntryT.mk event)).append (State.ExecEntryT.mk p sid (Db.mk (RowT := RowT) []))) = out.erase ∧ tr ≤ out
   refine ⟨afterEvent.append (State.ExecEntryT.mk p sid (Db.mk (RowT := RowT) [])), ?_, hstate, ?_, ?_⟩
-  · simp [Trace.append_erase, ErasableProofEntry.erase, IsMostRecentStateFor, getMostRecentStateFor_append, sid]
-  · simp [afterEvent, event, sid, Trace.append_erase, ErasableProofEntry.erase]
+  · simp [Trace.erase_append, ErasableProofEntry.erase, IsMostRecentStateFor, getMostRecentStateFor_append, sid]
+  · simp [afterEvent, event, sid, Trace.erase_append, ErasableProofEntry.erase]
   · have h1 : tr ≤ afterEvent := Trace.append_le tr (ProtocolEvent.ExecEntryT.mk event)
     have h2 := Trace.append_le afterEvent (State.ExecEntryT.mk p sid (Db.mk (RowT := RowT) []))
     exact Trace.le_trans _ _ _ h1 h2
@@ -210,7 +210,7 @@ theorem addRow.proof
         rw [hfresh] at hold
         contradiction
       have hcurrentRow : getRowOpt RowT afterRow.erase p ptr = some row := by
-        simp [afterRow, rowEntry, Trace.append_erase, ErasableProofEntry.erase, getRowOpt, getMostRecentStateFor_append]
+        simp [afterRow, rowEntry, Trace.erase_append, ErasableProofEntry.erase, getRowOpt, getMostRecentStateFor_append]
       obtain ⟨time, hwas, _⟩ := isMostRecentStateFor_spec p sid db tr.erase hd
       have hlogged : tr.erase.EventLogged (DbEvent.mk (RowT := RowT) p sid db.rows) :=
         stateWasSet_implies_pred tr p sid db hinv ⟨time, hwas⟩
@@ -220,9 +220,9 @@ theorem addRow.proof
         exact ⟨hrowInv, heventPred⟩
       have heventLogged : afterEvent.erase.EventLogged event := by
         refine ⟨afterRow.erase.length, ?_⟩
-        simpa only [afterEvent, Trace.append_erase, ErasableProofEntry.erase, Trace.EventLoggedAt] using Trace.at?_append afterRow.erase (ProtocolEvent.ExecEntryT.mk event)
+        simpa only [afterEvent, Trace.erase_append, ErasableProofEntry.erase, Trace.EventLoggedAt] using Trace.at?_append afterRow.erase (ProtocolEvent.ExecEntryT.mk event)
       have htableOld : getMostRecentStateFor afterEvent.erase p sid = some db := by
-        simp only [afterEvent, afterRow, Trace.append_erase, ErasableProofEntry.erase]
+        simp only [afterEvent, afterRow, Trace.erase_append, ErasableProofEntry.erase]
         rw [getMostRecentStateFor_append_disjoint tableEvent, getMostRecentStateFor_append_disjoint tableRow]
         exact hd
       have houtInv : out.Invariant := by
@@ -236,12 +236,12 @@ theorem addRow.proof
       refine ⟨out, ?_, houtInv, ?_, Trace.le_trans _ _ _ (Trace.le_trans _ _ _ hleRow hleEvent) hleOut⟩
       · rw [hres]
         refine ⟨Db.mk (RowT := RowT) (ptr :: db.rows), ?_, by simp [ptr], ?_⟩
-        · simp [out, tableEntry, Trace.append_erase, ErasableProofEntry.erase, getMostRecentStateFor_append]
-        · simp only [out, afterEvent, Trace.append_erase, ErasableProofEntry.erase, getRowOpt]
+        · simp [out, tableEntry, Trace.erase_append, ErasableProofEntry.erase, getMostRecentStateFor_append]
+        · simp only [out, afterEvent, Trace.erase_append, ErasableProofEntry.erase, getRowOpt]
           rw [getMostRecentStateFor_append_disjoint tableRow.symm, getMostRecentStateFor_append_disjoint rowEvent]
           exact hcurrentRow
       · rw [htrace]
-        simp [out, afterEvent, afterRow, rowEntry, tableEntry, event, ptr, insertionTrace, Trace.append_erase, ErasableProofEntry.erase]
+        simp [out, afterEvent, afterRow, rowEntry, tableEntry, event, ptr, insertionTrace, Trace.erase_append, ErasableProofEntry.erase]
     · simp only [hk] at hrun
       obtain ⟨hres, htrace⟩ := Prod.mk.inj hrun
       exact ⟨tr, by simp [hres], hinv, htrace, Trace.le_refl tr⟩

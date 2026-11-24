@@ -42,7 +42,7 @@ theorem addRow_run
   | none => simp [addRow, Traceful.run_bind, getLocalState, Traceful.run_mk, hd]
   | some db =>
     cases hk : allDbKeysUnique (row :: getRows RowT tr p db.rows) <;>
-      simp [addRow, Traceful.run_bind, getLocalState, newSessionId, Traceful.run_mk, hd, hk, guard,
+      simp [addRow, -bind_pure_comp, Traceful.run_bind, getLocalState, newSessionId, Traceful.run_mk, hd, hk, guard,
         ProtocolEvent.logEvent, setLocalState, appendEntry, Traceful.run_pure, Traceful.run_failure, insertionTrace]
 
 /-- Failed insertions leave the trace unchanged. -/

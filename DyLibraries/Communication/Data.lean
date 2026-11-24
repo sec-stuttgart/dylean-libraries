@@ -100,7 +100,7 @@ variable [BytesFunctor.Has Concat.SubF] [BytesLength.Has Concat.SubF.length]
 @[expose] def EncryptionInput.internalMf
     (mf : Comparse.ExtensibleMessageFormat Bytes α) :
     ∀ id, Comparse.ExtensibleMessageFormat Bytes (EncryptionInput.internalType α id)
-  | 0 | 1 => .prod .slowString (.prod .slowString mf)
+  | 0 | 1 => .prod .unboundedString (.prod .unboundedString mf)
 
 @[expose] public def EncryptionInput.mf
     (mf : Comparse.ExtensibleMessageFormat Bytes α) :
@@ -161,8 +161,8 @@ public theorem EncryptionInput.IsWellFormed_eq
 @[expose] def SignatureInput.internalMf
     (mf : Comparse.ExtensibleMessageFormat Bytes α) :
     ∀ id, Comparse.ExtensibleMessageFormat Bytes (SignatureInput.internalType α id)
-  | 0 => .prod .slowString (.prod .slowString mf)
-  | 1 => .prod .slowBytes .bytes
+  | 0 => .prod .unboundedString (.prod .unboundedString mf)
+  | 1 => .prod .unboundedBytes .bytes
 
 @[expose] public def SignatureInput.mf
     (mf : Comparse.ExtensibleMessageFormat Bytes α) :
@@ -219,7 +219,7 @@ public theorem SignatureInput.IsWellFormed_eq
 
 public instance : ParseableSerializeable SignedCommunicationMessage := .make <|
   .triviallyIsomorphic
-    (.prod .slowBytes .bytes)
+    (.prod .unboundedBytes .bytes)
     (fun ⟨message, signature⟩ => { message, signature })
     (fun { message, signature } => ⟨message, signature⟩)
 
@@ -232,7 +232,7 @@ public theorem SignedCommunicationMessage.IsWellFormed_eq
 
 public instance [ParseableSerializeable α] : ParseableSerializeable (RequestMessage α) := .make <|
   .triviallyIsomorphic
-    (.prod .slowBytes ParseableSerializeable.mf)
+    (.prod .unboundedBytes ParseableSerializeable.mf)
     (fun ⟨key, request⟩ => { request, key })
     (fun { request, key } => ⟨key, request⟩)
 
@@ -246,7 +246,7 @@ public theorem RequestMessage.IsWellFormed_eq
 
 public instance : ParseableSerializeable ResponseEnvelope := .make <|
   .triviallyIsomorphic
-    (.prod .slowBytes .bytes)
+    (.prod .unboundedBytes .bytes)
     (fun ⟨nonce, ciphertext⟩ => { nonce, ciphertext })
     (fun { nonce, ciphertext } => ⟨nonce, ciphertext⟩)
 
@@ -264,7 +264,7 @@ public theorem ResponseEnvelope.IsWellFormed_eq
 @[expose] def OptionParticipant.internalMf :
     ∀ id, Comparse.ExtensibleMessageFormat Bytes (OptionParticipant.internalType id)
   | 0 => Comparse.NonExtensibleMessageFormat.toExtensible .unit
-  | 1 => Comparse.NonExtensibleMessageFormat.toExtensible .slowString
+  | 1 => Comparse.NonExtensibleMessageFormat.toExtensible .unboundedString
 
 @[expose] def OptionParticipant.mf :
     Comparse.ExtensibleMessageFormat Bytes (Option Participant) :=
@@ -302,8 +302,8 @@ public instance : ParseableSerializeable (Option Participant) :=
 
 @[expose] def AssociatedData.internalMf :
     ∀ id, Comparse.ExtensibleMessageFormat Bytes (AssociatedData.internalType id)
-  | 0 => Comparse.NonExtensibleMessageFormat.toExtensible .slowString
-  | 1 => .prod .slowString (Comparse.NonExtensibleMessageFormat.toExtensible .slowString)
+  | 0 => Comparse.NonExtensibleMessageFormat.toExtensible .unboundedString
+  | 1 => .prod .unboundedString (Comparse.NonExtensibleMessageFormat.toExtensible .unboundedString)
 
 @[expose] def AssociatedData.mf : Comparse.ExtensibleMessageFormat Bytes AssociatedData :=
   .triviallyIsomorphic
@@ -417,9 +417,9 @@ public theorem WireMessage.IsWellFormed_eq
 
 @[expose] def CommunicationMetadata.internalMf [ParseableSerializeable α] :
     ∀ id, Comparse.ExtensibleMessageFormat Bytes (CommunicationMetadata.internalType α id)
-  | 0 => .prod .slowBytes (.prod .slowString (.prod .slowNat ParseableSerializeable.mf))
-  | 1 => .prod .slowBytes
-      (.prod .slowString (.prod .slowString (.prod .slowNat ParseableSerializeable.mf)))
+  | 0 => .prod .unboundedBytes (.prod .unboundedString (.prod .unboundedNat ParseableSerializeable.mf))
+  | 1 => .prod .unboundedBytes
+      (.prod .unboundedString (.prod .unboundedString (.prod .unboundedNat ParseableSerializeable.mf)))
 
 @[expose] def CommunicationMetadata.mf [ParseableSerializeable α] :
     Comparse.ExtensibleMessageFormat Bytes (CommunicationMetadata α) :=
@@ -479,8 +479,8 @@ public theorem CommunicationMetadata.IsWellFormed_eq
 
 public instance [ParseableSerializeable α] : ParseableSerializeable (AuthenticatedMetadata α) :=
   .make <| .triviallyIsomorphic
-    (.prod .slowBytes
-      (.prod .slowString (.prod .slowString (.prod .slowNat ParseableSerializeable.mf))))
+    (.prod .unboundedBytes
+      (.prod .unboundedString (.prod .unboundedString (.prod .unboundedNat ParseableSerializeable.mf))))
     (fun ⟨key, client, server, stateHandle, request⟩ =>
       { key, client, server, stateHandle, request })
     (fun { key, client, server, stateHandle, request } =>
